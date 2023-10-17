@@ -12,6 +12,7 @@ export class Calculator
      * @param {string} expression
      * @throws {UnknownMathOperationException}
      * @throws {UnpairedBracketsFoundException}
+     * @throws {UnexpectedBinaryOperationFoundException}
      * @returns {number}
      */
     static evaluateExpression(expression)

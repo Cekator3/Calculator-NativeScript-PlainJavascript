@@ -17,6 +17,7 @@ class TokenType
 }
 
 const OPERATION_PRIORITY = new Map([
+    ['~', 10],   //Unary minus
     ['sin', 9],
     ['cos', 9],
     ['!', 8],
@@ -39,7 +40,7 @@ const POSTFIX_OPERATIONS =
 
 const PREFIX_OPERATIONS =
 [
-    'sin', 'cos'
+    'sin', 'cos', '~'
 ];
 
 function isDigit(chr)
@@ -92,6 +93,31 @@ function getTokenType(token)
     if (token === ')')
         return TokenType.CLOSING_BRACKET;
     return TokenType.UKNOWN;
+}
+
+function isUnaryOperation(token, prevToken)
+{
+    if (prevToken === undefined) 
+        return true;
+    let prevTokenType = getTokenType(prevToken);
+    switch (prevTokenType) 
+    {
+        case TokenType.ARIPHMETIC_OPERATION:
+        case TokenType.OPENING_BRACKET:
+            return true;
+        default:
+            return false;
+    }
+}
+
+function getUnaryVersionOfOperation(token)
+{
+    if (token === '-')
+        return '~';
+    if (token === '+')
+        return '';
+    //There is no passing by reference parameters in JavaScript:(((
+    return false;
 }
 
 function extractItemsUntilOpeningBracketFromStack(bracket, stack)
@@ -166,11 +192,24 @@ export class UnpairedBracketsFoundException extends Error
     }
 }
 
+export class UnexpectedBinaryOperationFoundException extends Error
+{
+    operation;
+    position;
+    constructor (operation, position)
+    {
+        super('Found unexpected binary operation "' + operation + '" at position ' + position);
+        this.operation = operation;
+        this.position = position;
+    }
+}
+
 /**
  * Generates postfix expression from given math expression
  * @param {string} mathExpression
  * @throws {UnknownMathOperationException}
  * @throws {UnpairedBracketsFoundException}
+ * @throws {UnexpectedBinaryOperationFoundException}
  * @returns {string}
  */
 export function calculatePostfixForm(mathExpression)
@@ -200,6 +239,18 @@ export function calculatePostfixForm(mathExpression)
                     result += temp.join(' ') + ' ';
                 break;
             case TokenType.ARIPHMETIC_OPERATION:
+                if (isUnaryOperation(tokens[i], tokens[i - 1]))
+                {
+                    let token = getUnaryVersionOfOperation(tokens[i]);
+                    if (token === false)
+                        throw new UnexpectedBinaryOperationFoundException(tokens[i], i + 1);
+                    if (token === '')
+                        break;
+                    stack.push(token);
+                    break;
+                }
+                if (isPrefixOperation(tokens[i - 1]))
+                    throw new UnexpectedBinaryOperationFoundException(tokens[i], i + 1);
                 temp = extractAriphmeticAndHighPriorityOperationsFromStack
                 (
                     OPERATION_PRIORITY.get(tokens[i]), 
