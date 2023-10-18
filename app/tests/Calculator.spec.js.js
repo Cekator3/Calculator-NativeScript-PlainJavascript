@@ -1,8 +1,18 @@
-import { evaluateExpression } from "~/Model/Calculator";
+import 
+{ 
+    evaluateExpression, 
+    UnknownMathOperationException, 
+    UnpairedBracketsFoundException, 
+    UnexpectedMathOperationFoundException 
+} from "~/Model/Calculator";
 
 QUnit.test("Simple math expressions evaluating", testSimpleMathExpressionEvaluating)
 QUnit.test("Regular math expressions evaluating", testRegularMathExpressionEvaluating)
 QUnit.test("Complex math expressions evaluating", testComplexMathExpressionEvaluating)
+
+QUnit.test("Evaluating math expression with unknown operations", testEvaluatingMathExpressionWithUnknownOperations);
+QUnit.test("Evaluating math expression with unpaired brackets", testEvaluatingMathExpressionWithUnpairedBrackets);
+QUnit.test("Evaluating math expression with unexpected placement of math operations", testEvaluatingMathExpressionWithUnexpectedPlacementOfMathOperations);
 
 function testSimpleMathExpressionEvaluating(assert)
 {
@@ -74,6 +84,69 @@ function testComplexMathExpressionEvaluating(assert)
             evaluateExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
+        );
+    }
+}
+
+function testEvaluatingMathExpressionWithUnknownOperations(assert)
+{
+    let inputs = 
+    [
+        'You cannot see me',
+        'man(132)',
+        'man(132!)!',
+        '12!*man(41)'
+    ];
+    let expectedException = UnknownMathOperationException;
+    for (let i = 0; i < inputs.length; i++) 
+    {
+        assert.throws(
+            function () 
+            {
+                calculatePostfixForm(inputs[i]);
+            },
+            expectedException
+        );
+    }
+}
+
+function testEvaluatingMathExpressionWithUnpairedBrackets(assert)
+{
+    let inputs = 
+    [
+        '(((123 * 131)^2) + 3',
+    ];
+    let expectedException = UnpairedBracketsFoundException;
+    for (let i = 0; i < inputs.length; i++) 
+    {
+        assert.throws(
+            function () 
+            {
+                calculatePostfixForm(inputs[i]);
+            },
+            expectedException
+        );
+    }
+}
+
+function 
+testEvaluatingMathExpressionWithUnexpectedPlacementOfMathOperations(assert)
+{
+    let inputs = 
+    [
+        '312 */ 3',
+        '123 *! 31',
+        '(123 + 31)(123 + 31)'
+    ];
+    let expectedException = UnexpectedMathOperationFoundException;
+    for (let i = 0; i < inputs.length; i++) 
+    {
+        assert.throws(
+            function () 
+            {
+                calculatePostfixForm(inputs[i]);
+            },
+            expectedException
         );
     }
 }
