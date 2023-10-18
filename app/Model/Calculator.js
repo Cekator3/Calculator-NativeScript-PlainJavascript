@@ -1,4 +1,6 @@
-import { splitMathExpressionToTokens } from "./MathOperationsTokenizer";
+////////////////////////////////////////////////////////////
+//Module for calculating a value from a postfix expression
+////////////////////////////////////////////////////////////
 import 
 { 
     calculatePostfixForm,
@@ -92,8 +94,7 @@ function calculateUnaryExpression(a, operation)
  */
 export function evaluateExpression(expression)
 {
-    let expr = calculatePostfixForm(expression);
-    let tokens = splitMathExpressionToTokens(expr);
+    let tokens = calculatePostfixForm(expression);
     let stack = [];
     let a = 0;
     let b = 0;

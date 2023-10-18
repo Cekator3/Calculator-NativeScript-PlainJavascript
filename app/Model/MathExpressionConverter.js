@@ -221,12 +221,12 @@ export class UnexpectedMathOperationFoundException extends Error
  * @throws {UnknownMathOperationException}
  * @throws {UnpairedBracketsFoundException}
  * @throws {UnexpectedMathOperationFoundException}
- * @returns {string}
+ * @returns {string[]}
  */
 export function calculatePostfixForm(mathExpression)
 {
     let tokens = splitMathExpressionToTokens(mathExpression);
-    let result = '';
+    let result = [];
     let stack = [];
     let temp = [];
     for (let i = 0; i < tokens.length; i++) 
@@ -235,12 +235,12 @@ export function calculatePostfixForm(mathExpression)
         switch (tokenType)
         {
             case TokenType.NUMBER:
-                result += tokens[i] + ' ';
+                result.push(tokens[i]);
                 break;
             case TokenType.POSTFIX_OPERATION:
                 if (!isPostfixOperationCanGoAfterThisToken(tokens[i - 1]))
                     throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
-                result += tokens[i] + ' ';
+                result.push(tokens[i]);
                 break;
             case TokenType.PREFIX_OPERATION:
             case TokenType.OPENING_BRACKET:
@@ -250,8 +250,7 @@ export function calculatePostfixForm(mathExpression)
                 temp = extractItemsUntilOpeningBracketFromStack('(', stack);
                 if (temp === false)
                     throw new UnpairedBracketsFoundException(tokens[i], i + 1);
-                if (temp.length > 0)
-                    result += temp.join(' ') + ' ';
+                result = result.concat(temp)
                 break;
             case TokenType.ARIPHMETIC_OPERATION:
                 if (isUnaryOperation(tokens[i], tokens[i - 1]))
@@ -270,8 +269,7 @@ export function calculatePostfixForm(mathExpression)
                     OPERATION_PRIORITY.get(tokens[i]), 
                     stack
                 );
-                if (temp.length > 0)
-                    result += temp.join(' ') + ' ';
+                result = result.concat(temp)
                 stack.push(tokens[i]);
                 break;
             case TokenType.UKNOWN:
@@ -281,10 +279,6 @@ export function calculatePostfixForm(mathExpression)
     temp = extractAllOperationsFromStack(stack);
     if (temp === false)
         throw new UnpairedBracketsFoundException();
-    result += temp.join(' ');
-    //there will be an extra space at the end 
-    //if there is a closing bracket at the end of math expression
-    if (result.at(-1) === ' ')
-        return result.trimEnd();
+    result = result.concat(temp);
     return result;
 }
