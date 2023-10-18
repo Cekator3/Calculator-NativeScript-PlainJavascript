@@ -175,6 +175,18 @@ function isPostfixOperationCanGoAfterThisToken(token)
            (tokenType !== TokenType.PREFIX_OPERATION);
 }
 
+export class OpeningBracketExpectedButNotFoundException extends Error
+{
+    tokenFound;
+    tokenPosition;
+    constructor (tokenFound, tokenPosition)
+    {
+        super('ERROR: Opening bracket expecteed but found "' + tokenFound + '" at position ' + tokenPosition);
+        this.tokenFound = tokenFound;
+        this.tokenPosition = tokenPosition;
+    }
+}
+
 export class UnknownMathOperationException extends Error
 {
     unknownOperation;
@@ -182,7 +194,6 @@ export class UnknownMathOperationException extends Error
     constructor (unknownOperation, tokenPosition)
     {
         super('ERROR: Unknown operation ' + unknownOperation + ' at token position ' + tokenPosition);
-        this.name = 'UnknownOperationException';
         this.unknownOperation = unknownOperation;
         this.tokenPosition = tokenPosition;
     }
@@ -221,6 +232,7 @@ export class UnexpectedMathOperationFoundException extends Error
  * @throws {UnknownMathOperationException}
  * @throws {UnpairedBracketsFoundException}
  * @throws {UnexpectedMathOperationFoundException}
+ * @throws {OpeningBracketExpectedButNotFoundException}
  * @returns {string[]}
  */
 export function calculatePostfixForm(mathExpression)
@@ -229,9 +241,13 @@ export function calculatePostfixForm(mathExpression)
     let result = [];
     let stack = [];
     let temp = [];
+    let isOpeningBracketRequired = false;
     for (let i = 0; i < tokens.length; i++) 
     {
         let tokenType = getTokenType(tokens[i]);
+        if(isOpeningBracketRequired && (tokenType !== TokenType.OPENING_BRACKET))
+            throw new OpeningBracketExpectedButNotFoundException(tokens[i], i + 1);
+        isOpeningBracketRequired = false;
         switch (tokenType)
         {
             case TokenType.NUMBER:
@@ -243,6 +259,10 @@ export function calculatePostfixForm(mathExpression)
                 result.push(tokens[i]);
                 break;
             case TokenType.PREFIX_OPERATION:
+                isOpeningBracketRequired = (tokens[i] === 'cos') || 
+                                           (tokens[i] === 'sin');
+                stack.push(tokens[i]);
+                break;
             case TokenType.OPENING_BRACKET:
                 stack.push(tokens[i]);
                 break;

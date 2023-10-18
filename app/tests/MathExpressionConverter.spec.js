@@ -1,13 +1,18 @@
-import { calculatePostfixForm } from "~/Model/MathExpressionConverter";
-import { UnknownMathOperationException } from "~/Model/MathExpressionConverter";
-import { UnpairedBracketsFoundException } from "~/Model/MathExpressionConverter";
-import { UnexpectedMathOperationFoundException } from "~/Model/MathExpressionConverter";
+import 
+{ 
+    calculatePostfixForm,
+    UnknownMathOperationException,
+    UnpairedBracketsFoundException,
+    UnexpectedMathOperationFoundException,
+    OpeningBracketExpectedButNotFoundException
+} from "~/Model/MathExpressionConverter";
 
 QUnit.test("Simple math expressions converting", testSimpleMathExpressionConverting);
 QUnit.test("Regular math expressions converting", testRegularMathExpressionConverting);
 QUnit.test("Complex math expressions converting", testComplexMathExpressionConverting);
 
 QUnit.test("Converting wrong paired math expressions", testConvertingWrongPairedMathExpressions);
+QUnit.test("Converting math expressions with not paired operations", testConvertingMathExpressionsWithNotPairedOperations);
 QUnit.test("Converting math expressions that contains unknown math operation", testConvertingMathExpressionsThatContainsUnknownMathOperation);
 QUnit.test("Unexpected math operations in expression", testUnexpectedMathOperationsInExpression);
 
@@ -117,12 +122,34 @@ function testComplexMathExpressionConverting(assert)
     }
 }
 
+function testConvertingMathExpressionsWithNotPairedOperations(assert)
+{
+    let inputs = 
+    [
+        'sin 1',
+        'sin 1!',
+        '(cos )2',
+        'sin cos 2',
+        'sin!'
+    ];
+    let expectedException = OpeningBracketExpectedButNotFoundException;
+    for (let i = 0; i < inputs.length; i++) 
+    {
+        assert.throws(
+            function () 
+            {
+                calculatePostfixForm(inputs[i]);
+            },
+            expectedException
+        );
+    }
+}
+
 function testConvertingWrongPairedMathExpressions(assert)
 {
     let inputs = 
     [
         '2)',
-        'sin 2)',
         '((())))',
         '('
     ];
@@ -165,11 +192,9 @@ function testUnexpectedMathOperationsInExpression(assert)
     [
         '2****3',
         '2/*3',
-        'sin - 3',
         '!!!!',
         '!+',
         '!1',
-        'sin!2'
     ];
     let expectedException = UnexpectedMathOperationFoundException;
     for (let i = 0; i < inputs.length; i++) 
