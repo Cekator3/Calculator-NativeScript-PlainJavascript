@@ -1,7 +1,7 @@
 import { calculatePostfixForm } from "~/Model/MathExpressionConverter";
 import { UnknownMathOperationException } from "~/Model/MathExpressionConverter";
 import { UnpairedBracketsFoundException } from "~/Model/MathExpressionConverter";
-import { UnexpectedBinaryOperationFoundException } from "~/Model/MathExpressionConverter";
+import { UnexpectedMathOperationFoundException } from "~/Model/MathExpressionConverter";
 
 QUnit.test("Simple math expressions converting", testSimpleMathExpressionConverting);
 QUnit.test("Regular math expressions converting", testRegularMathExpressionConverting);
@@ -9,7 +9,7 @@ QUnit.test("Complex math expressions converting", testComplexMathExpressionConve
 
 QUnit.test("Converting wrong paired math expressions", testConvertingWrongPairedMathExpressions);
 QUnit.test("Converting math expressions that contains unknown math operation", testConvertingMathExpressionsThatContainsUnknownMathOperation);
-QUnit.test("Unexpected binary operations in expression", testUnexpectedBinaryOperationsInExpression);
+QUnit.test("Unexpected math operations in expression", testUnexpectedMathOperationsInExpression);
 
 function testSimpleMathExpressionConverting(assert)
 {
@@ -100,12 +100,12 @@ function testComplexMathExpressionConverting(assert)
     let inputs = 
     [
         '3 * ((-25 - 10 * -2 ^ 2 / 4) * (4 + 5)) / 2',
-        '15/(7-(1+1))*3-(2+(1+1))*15/(7-(200+1))3-(2+(1+1))(15/(7-(1+1))*3-(2+(1+1))+15/(7-(1+1))*3-(2+(1+1)))'
+        '15/(7-(1+1))*3-(2+(1+1))*15/(7-(200+1))*3-(2+(1+1))*(15/(7-(1+1))*3-(2+(1+1))+15/(7-(1+1))*3-(2+(1+1)))'
     ];
     let expectedOutputs =
     [
         '3 25 ~ 10 2 ~ 2 ^ * 4 / - 4 5 + * * 2 /',
-        '15 7 1 1 + - / 3 * 2 1 1 + + 15 * 7 200 1 + - 3 / - 2 1 1 + + 15 7 1 1 + - / 3 * 2 1 1 + + - 15 7 1 1 + - / 3 * + 2 1 1 + + - -'
+        '15 7 1 1 + - / 3 * 2 1 1 + + 15 * 7 200 1 + - / 3 * - 2 1 1 + + 15 7 1 1 + - / 3 * 2 1 1 + + - 15 7 1 1 + - / 3 * + 2 1 1 + + - * -'
     ];
     for (let i = 0; i < inputs.length; i++) 
     {
@@ -159,15 +159,19 @@ function testConvertingMathExpressionsThatContainsUnknownMathOperation(assert)
     }
 }
 
-function testUnexpectedBinaryOperationsInExpression(assert)
+function testUnexpectedMathOperationsInExpression(assert)
 {
     let inputs = 
     [
         '2****3',
         '2/*3',
         'sin - 3',
+        '!!!!',
+        '!+',
+        '!1',
+        'sin!2'
     ];
-    let expectedException = UnexpectedBinaryOperationFoundException;
+    let expectedException = UnexpectedMathOperationFoundException;
     for (let i = 0; i < inputs.length; i++) 
     {
         assert.throws(

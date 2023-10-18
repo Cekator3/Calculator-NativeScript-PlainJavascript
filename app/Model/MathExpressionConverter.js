@@ -4,6 +4,7 @@
 
 import { splitMathExpressionToTokens } from "./MathOperationsTokenizer";
 
+//TODO  если после закрывающейся скобки идёт число --- кидай исключенгие
 //Emulating enum type
 class TokenType
 {
@@ -28,17 +29,17 @@ const OPERATION_PRIORITY = new Map([
     ['-', '6']
 ]);
 
-const ARIPHMETIC_OPERATIONS = 
+export const ARIPHMETIC_OPERATIONS = 
 [
     '+', '-', '/', '*', '^'
 ];
 
-const POSTFIX_OPERATIONS =
+export const POSTFIX_OPERATIONS =
 [
     '!'
 ];
 
-const PREFIX_OPERATIONS =
+export const PREFIX_OPERATIONS =
 [
     'sin', 'cos', '~'
 ];
@@ -164,43 +165,53 @@ function extractAriphmeticAndHighPriorityOperationsFromStack(priorityLimit, stac
     return result;
 }
 
+function isPostfixOperationCanGoAfterThisToken(token)
+{
+    if (token === undefined)
+        return false;
+    let tokenType = getTokenType(token);
+    return (tokenType !== TokenType.OPENING_BRACKET) &&
+           (tokenType !== TokenType.ARIPHMETIC_OPERATION) &&
+           (tokenType !== TokenType.PREFIX_OPERATION);
+}
+
 export class UnknownMathOperationException extends Error
 {
     unknownOperation;
-    position;
-    constructor (unknownOperation, position)
+    tokenPosition;
+    constructor (unknownOperation, tokenPosition)
     {
-        super('ERROR: Unknown operation ' + unknownOperation + ' at position ' + position);
+        super('ERROR: Unknown operation ' + unknownOperation + ' at token position ' + tokenPosition);
         this.name = 'UnknownOperationException';
         this.unknownOperation = unknownOperation;
-        this.position = position;
+        this.tokenPosition = tokenPosition;
     }
 }
 
 export class UnpairedBracketsFoundException extends Error
 {
     bracket;
-    position;
-    constructor (bracket = undefined, position = undefined)
+    tokenPosition;
+    constructor (bracket = undefined, tokenPosition = undefined)
     {
         if (bracket === undefined)
             super('Math expression is unpaired');
         else
-            super('Found unpaired bracket "' + bracket + '" at position ' + position);
+            super('Found unpaired bracket "' + bracket + '" at token position ' + tokenPosition);
         this.bracket = bracket;
-        this.position = position;
+        this.tokenPosition = tokenPosition;
     }
 }
 
-export class UnexpectedBinaryOperationFoundException extends Error
+export class UnexpectedMathOperationFoundException extends Error
 {
     operation;
-    position;
-    constructor (operation, position)
+    tokenPosition;
+    constructor (operation, tokenPosition)
     {
-        super('Found unexpected binary operation "' + operation + '" at position ' + position);
+        super('Found unexpected math operation "' + operation + '" at token ' + tokenPosition);
         this.operation = operation;
-        this.position = position;
+        this.tokenPosition = tokenPosition;
     }
 }
 
@@ -209,7 +220,7 @@ export class UnexpectedBinaryOperationFoundException extends Error
  * @param {string} mathExpression
  * @throws {UnknownMathOperationException}
  * @throws {UnpairedBracketsFoundException}
- * @throws {UnexpectedBinaryOperationFoundException}
+ * @throws {UnexpectedMathOperationFoundException}
  * @returns {string}
  */
 export function calculatePostfixForm(mathExpression)
@@ -224,7 +235,11 @@ export function calculatePostfixForm(mathExpression)
         switch (tokenType)
         {
             case TokenType.NUMBER:
+                result += tokens[i] + ' ';
+                break;
             case TokenType.POSTFIX_OPERATION:
+                if (!isPostfixOperationCanGoAfterThisToken(tokens[i - 1]))
+                    throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
                 result += tokens[i] + ' ';
                 break;
             case TokenType.PREFIX_OPERATION:
@@ -243,14 +258,13 @@ export function calculatePostfixForm(mathExpression)
                 {
                     let token = getUnaryVersionOfOperation(tokens[i]);
                     if (token === false)
-                        throw new UnexpectedBinaryOperationFoundException(tokens[i], i + 1);
-                    if (token === '')
-                        break;
-                    stack.push(token);
+                        throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
+                    if (token !== '')
+                        stack.push(token);
                     break;
                 }
                 if (isPrefixOperation(tokens[i - 1]))
-                    throw new UnexpectedBinaryOperationFoundException(tokens[i], i + 1);
+                    throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
                 temp = extractAriphmeticAndHighPriorityOperationsFromStack
                 (
                     OPERATION_PRIORITY.get(tokens[i]), 
