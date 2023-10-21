@@ -4,15 +4,16 @@
 import 
 { 
     calculatePostfixForm,
-    ARIPHMETIC_OPERATIONS,
-    POSTFIX_OPERATIONS,
-    PREFIX_OPERATIONS
+    DeveloperForgotToWriteImplementationOfMathOperationException,
 } 
 from "./MathExpressionConverter";
 
-const UnaryOperations = POSTFIX_OPERATIONS + PREFIX_OPERATIONS;
-
-const BinaryOperations = ARIPHMETIC_OPERATIONS;
+import 
+{ 
+    isAriphmeticOperation,
+    isPostfixOperation,
+    isPrefixOperation,
+} from "./OperationTypes";
 
 function isDigit(chr)
 {
@@ -29,12 +30,12 @@ function isNumber(token)
 
 function isBinaryOperation(token)
 {
-    return BinaryOperations.includes(token);
+    return isAriphmeticOperation(token);
 }
 
 function isUnaryOperation(token)
 {
-    return UnaryOperations.includes(token);
+    return isPostfixOperation(token) || isPrefixOperation(token);
 }
 
 function Factorial(n)
@@ -63,7 +64,7 @@ function calculateBinaryExpression(a, b, operation)
         case '^':
             return Math.pow(a, b);
         default:
-            throw new Error('Binary operation not implenented');
+            return undefined;
     }
 }
 
@@ -80,7 +81,7 @@ function calculateUnaryExpression(a, operation)
         case '!':
             return Factorial(a);
         default:
-            break;
+            return undefined;
     }
 }
 
@@ -90,6 +91,7 @@ function calculateUnaryExpression(a, operation)
  * @throws {UnknownMathOperationException}
  * @throws {UnpairedBracketsFoundException}
  * @throws {UnexpectedMathOperationFoundException}
+ * @throws {DeveloperForgotToWriteImplementationOfMathOperationException}
  * @returns {number}
  */
 export function evaluateExpression(expression)
@@ -99,14 +101,14 @@ export function evaluateExpression(expression)
     let a = 0;
     let b = 0;
     let result = 0;
-    for (let token of tokens)
+    for (let i = 0; i < tokens.length; i++) 
     {
-        if (isNumber(token))
+        if (isNumber(tokens[i]))
         {
-            stack.push(+token);
+            stack.push(+tokens[i]);
             continue;
         }
-        if (isBinaryOperation(token))
+        if (isBinaryOperation(tokens[i]))
         {
             if (stack.length === 0)
                 b = 0;
@@ -116,17 +118,21 @@ export function evaluateExpression(expression)
                 a = 0;
             else
                 a = stack.pop();
-            result = calculateBinaryExpression(a, b, token);
+            result = calculateBinaryExpression(a, b, tokens[i]);
+            if (result === undefined)
+                throw new DeveloperForgotToWriteImplementationOfMathOperationException(tokens[i], tokens);
             stack.push(result);
             continue;
         }
-        if (isUnaryOperation(token))
+        if (isUnaryOperation(tokens[i]))
         {
             if (stack.length === 0)
                 a = 0;
             else
                 a = stack.pop();
-            result = calculateUnaryExpression(a, token);
+            result = calculateUnaryExpression(a, tokens[i]);
+            if (result === undefined)
+                throw new DeveloperForgotToWriteImplementationOfMathOperationException(tokens[i], tokens);
             stack.push(result);
             continue;
         }

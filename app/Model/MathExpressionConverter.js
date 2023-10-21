@@ -3,8 +3,16 @@
 ///////////////////////////////////////////////////////////////////
 
 import { splitMathExpressionToTokens } from "./MathOperationsTokenizer";
+import 
+{ 
+    isAriphmeticOperation,
+    isPostfixOperation,
+    isPrefixOperation,
+    getOperationPriority,
+    getUnaryVersionOfOperation
+} from "./OperationTypes";
 
-//TODO  если после закрывающейся скобки идёт число --- кидай исключенгие
+
 //Emulating enum type
 class TokenType
 {
@@ -17,33 +25,6 @@ class TokenType
     static UKNOWN = 6;
 }
 
-const OPERATION_PRIORITY = new Map([
-    ['~', 10],   //Unary minus
-    ['sin', 9],
-    ['cos', 9],
-    ['!', 8],
-    ['^', 8],
-    ['*', 7],
-    ['/', 7],
-    ['+', '6'],
-    ['-', '6']
-]);
-
-export const ARIPHMETIC_OPERATIONS = 
-[
-    '+', '-', '/', '*', '^'
-];
-
-export const POSTFIX_OPERATIONS =
-[
-    '!'
-];
-
-export const PREFIX_OPERATIONS =
-[
-    'sin', 'cos', '~'
-];
-
 function isDigit(chr)
 {
     return (chr >= '0') && (chr <= '9');
@@ -55,21 +36,6 @@ function isNumber(token)
         if (!isDigit(chr))
             return false;
     return true;
-}
-
-function isAriphmeticOperation(token)
-{
-    return ARIPHMETIC_OPERATIONS.includes(token);
-}
-
-function isPostfixOperation(token)
-{
-    return POSTFIX_OPERATIONS.includes(token);
-}
-
-function isPrefixOperation(token)
-{
-    return PREFIX_OPERATIONS.includes(token);
 }
 
 function isMathOperation(token)
@@ -96,29 +62,13 @@ function getTokenType(token)
     return TokenType.UKNOWN;
 }
 
-function isUnaryOperation(token, prevToken)
+function isUnaryOperation(prevToken)
 {
     if (prevToken === undefined) 
         return true;
     let prevTokenType = getTokenType(prevToken);
-    switch (prevTokenType) 
-    {
-        case TokenType.ARIPHMETIC_OPERATION:
-        case TokenType.OPENING_BRACKET:
-            return true;
-        default:
-            return false;
-    }
-}
-
-function getUnaryVersionOfOperation(token)
-{
-    if (token === '-')
-        return '~';
-    if (token === '+')
-        return '';
-    //There is no passing by reference parameters in JavaScript:(((
-    return false;
+    return (prevTokenType === TokenType.ARIPHMETIC_OPERATION) ||
+           (prevTokenType === TokenType.OPENING_BRACKET);
 }
 
 function extractItemsUntilOpeningBracketFromStack(bracket, stack)
@@ -131,7 +81,7 @@ function extractItemsUntilOpeningBracketFromStack(bracket, stack)
             return result;
         result.push(token);
     }
-    //There is no passing by reference parameters in JavaScript:(((
+    //Opening bracket not found
     return false;
 }
 
@@ -154,8 +104,10 @@ function extractAriphmeticAndHighPriorityOperationsFromStack(priorityLimit, stac
     while (stack.length > 0)
     {
         let token = stack.at(-1);
-        if (isPrefixOperation(token) || 
-            (OPERATION_PRIORITY.get(token) >= priorityLimit))
+        let operationPriority = getOperationPriority(token);
+        if (operationPriority === undefined)
+            throw new DeveloperForgotToWriteImplementationOfMathOperationException(token, []);
+        if (operationPriority >= priorityLimit)
         {
             result.push(stack.pop());
             continue;
@@ -226,6 +178,18 @@ export class UnexpectedMathOperationFoundException extends Error
     }
 }
 
+export class DeveloperForgotToWriteImplementationOfMathOperationException extends Error
+{
+    operator;
+    mathExpression;
+    constructor (operator, mathExpression)
+    {
+        super('The developer forgot to write the implementation of ' + operator + ' operator');
+        this.operator = operator;
+        this.mathExpression = mathExpression;
+    }
+}
+
 /**
  * Generates postfix expression from given math expression
  * @param {string} mathExpression
@@ -233,6 +197,7 @@ export class UnexpectedMathOperationFoundException extends Error
  * @throws {UnpairedBracketsFoundException}
  * @throws {UnexpectedMathOperationFoundException}
  * @throws {OpeningBracketExpectedButNotFoundException}
+ * @throws {DeveloperForgotToWriteImplementationOfMathOperationException}
  * @returns {string[]}
  */
 export function calculatePostfixForm(mathExpression)
@@ -273,10 +238,10 @@ export function calculatePostfixForm(mathExpression)
                 result = result.concat(temp)
                 break;
             case TokenType.ARIPHMETIC_OPERATION:
-                if (isUnaryOperation(tokens[i], tokens[i - 1]))
+                if (isUnaryOperation(tokens[i - 1]))
                 {
                     let token = getUnaryVersionOfOperation(tokens[i]);
-                    if (token === false)
+                    if (token === undefined)
                         throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
                     if (token !== '')
                         stack.push(token);
@@ -284,11 +249,23 @@ export function calculatePostfixForm(mathExpression)
                 }
                 if (isPrefixOperation(tokens[i - 1]))
                     throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
-                temp = extractAriphmeticAndHighPriorityOperationsFromStack
-                (
-                    OPERATION_PRIORITY.get(tokens[i]), 
-                    stack
-                );
+                let operationPriority = getOperationPriority(tokens[i]);
+                if (operationPriority === undefined)
+                    throw new DeveloperForgotToWriteImplementationOfMathOperationException(tokens[i], tokens);
+                try
+                {
+                    temp = extractAriphmeticAndHighPriorityOperationsFromStack
+                    (
+                        operationPriority,
+                        stack
+                    );
+                }
+                catch (err)
+                {
+                    if (err.name === 'DeveloperForgotToWriteImplementationOfMathOperationException')
+                        err.mathExpression = tokens;
+                    throw err;
+                }
                 result = result.concat(temp)
                 stack.push(tokens[i]);
                 break;
@@ -299,6 +276,5 @@ export function calculatePostfixForm(mathExpression)
     temp = extractAllOperationsFromStack(stack);
     if (temp === false)
         throw new UnpairedBracketsFoundException();
-    result = result.concat(temp);
-    return result;
+    return result.concat(temp);
 }
