@@ -1,0 +1,56 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo">
+    <ActionBar title="Калькулятор" />
+
+    <StackLayout class='calculator'>
+        <FlexboxLayout class="user-last-input">
+            <Label>
+            <FormattedString>
+                <Span text="6000 " />
+                <Span text="/ " class="operation"/>
+                <Span text="2 " />
+                <Span text="* " class="operation"/>
+                <Span text="3227 " />
+                <Span text="* " class="operation"/>
+                <Span text="2" />
+            </FormattedString>
+            </Label>
+        </FlexboxLayout>
+        <FlexboxLayout class="user-current-input">
+            <Label text="=12,454" />           
+        </FlexboxLayout>
+        <FlexboxLayout class='calculator-buttons'>
+            <FlexboxLayout>
+                <Button text="C" class="Text-Deleter"></Button>
+                <Button text="sin" class="Function"></Button>
+                <Button text="7" class="Number"></Button>
+                <Button text="4" class="Number"></Button>
+                <Button text="1" class="Number"></Button>
+                <Button text="^" class="Number"></Button>
+            </FlexboxLayout>
+            <FlexboxLayout>
+                <Button text="⌫" class="Char-Deleter"></Button>
+                <Button text="cos" class="Function"></Button>
+                <Button text="8" class="Number"></Button>
+                <Button text="5" class="Number"></Button>
+                <Button text="2" class="Number"></Button>
+                <Button text="0" class="Number"></Button>
+            </FlexboxLayout>
+            <FlexboxLayout>
+                <Button text="(" class="Bracket"></Button>
+                <Button text="!" class="Function"></Button>
+                <Button text="9" class="Number"></Button>
+                <Button text="6" class="Number"></Button>
+                <Button text="3" class="Number"></Button>
+                <Button text="," class="Number"></Button>
+            </FlexboxLayout>
+            <FlexboxLayout>
+                <Button text=")" class="Bracket"></Button>
+                <Button text="÷" class="Ariphmetic"></Button>
+                <Button text="×" class="Ariphmetic"></Button>
+                <Button text="−" class="Ariphmetic"></Button>
+                <Button text="+" class="Ariphmetic"></Button>
+                <Button text="=" class="Equal"></Button>
+            </FlexboxLayout>
+        </FlexboxLayout>
+    </StackLayout>
+</Page>
