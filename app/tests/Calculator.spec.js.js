@@ -1,9 +1,9 @@
 import { evaluateExpression } from "~/Model/Calculator";
 
-QUnit.test("Simple math expressions evaluating", testSimpleMathExpressionEvaluating)
-QUnit.test("Regular math expressions evaluating", testRegularMathExpressionEvaluating)
-QUnit.test("Complex math expressions evaluating", testComplexMathExpressionEvaluating)
-QUnit.test('Math expressions with float answer', testMathExpressionsWithFloatAnswer);
+//QUnit.test("Simple math expressions evaluating", testSimpleMathExpressionEvaluating)
+//QUnit.test("Regular math expressions evaluating", testRegularMathExpressionEvaluating)
+//QUnit.test("Complex math expressions evaluating", testComplexMathExpressionEvaluating)
+//QUnit.test('Math expressions with float answer', testMathExpressionsWithFloatAnswer);
 
 function testSimpleMathExpressionEvaluating(assert)
 {

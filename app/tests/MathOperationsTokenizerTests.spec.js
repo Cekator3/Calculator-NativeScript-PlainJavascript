@@ -6,14 +6,18 @@ QUnit.test("Complex math expressions tokenizing", testComplexMathExpressionToken
 
 function testSimpleMathExpressionTokenizing(assert)
 {
-    let inputs = 
+    let inputs =
     [
         '2',
         '0',
         '2 + 2',
         '1 * 2',
         '1++',
-        '1.02 * 2'
+        '1.02 * 2',
+        '101.2 * 2',
+        '2 * 10.24 + 2',
+        'abcd.',
+        'sin.123'
     ];
     let expectedOutputs =
     [
@@ -22,9 +26,13 @@ function testSimpleMathExpressionTokenizing(assert)
         ['2', '+', '2'],
         ['1', '*', '2'],
         ['1', '+', '+'],
-        [ '1.02', '*', '2']
-    ]
-    for (let i = 0; i < inputs.length; i++) 
+        [ '1.02', '*', '2'],
+        [ '101.2', '*', '2'],
+        [ '2', '*', '10.24', '+', '2'],
+        [ 'abcd', '.' ],
+        [ 'sin', '.123']
+    ];
+    for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
             splitMathExpressionToTokens(inputs[i]),
@@ -36,7 +44,7 @@ function testSimpleMathExpressionTokenizing(assert)
 
 function testRegularMathExpressionTokenizing(assert)
 {
-    let inputs = 
+    let inputs =
     [
         '3216^2 +4      -15',
         'sin1 + 3',
@@ -48,7 +56,7 @@ function testRegularMathExpressionTokenizing(assert)
         ['sin', '1', '+', '3'],
         ['sin', '(', '15', ')', '*', 'cos', '(', '15', ')'],
     ]
-    for (let i = 0; i < inputs.length; i++) 
+    for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
             splitMathExpressionToTokens(inputs[i]),
@@ -60,7 +68,7 @@ function testRegularMathExpressionTokenizing(assert)
 
 function testComplexMathExpressionTokenizing(assert)
 {
-    let inputs = 
+    let inputs =
     [
         '15/(7-(1+1))*3-(2+(1+1))*15/(7-(200+1))3-(2+(1+1))(15/(7-(1+1))*3-(2+(1+1))+15/(7-(1+1))*3-(2+(1+1)))'
     ];
@@ -76,7 +84,7 @@ function testComplexMathExpressionTokenizing(assert)
             "-", "(", "2", "+", "(", "1", "+", "1", ")", ")", ")"
         ]
     ]
-    for (let i = 0; i < inputs.length; i++) 
+    for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
             splitMathExpressionToTokens(inputs[i]),

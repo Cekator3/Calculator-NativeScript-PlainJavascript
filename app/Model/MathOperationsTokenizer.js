@@ -7,18 +7,10 @@ class CharType
 {
     static LATIN = 0;
     static DIGIT = 1;
-    static SPACE = 2;
-    static OTHER = 3;
+    static DIGIT_DELIMITER = 2
+    static SPACE = 3;
+    static OTHER = 4;
 }
-
-const SPACE_SYMBOLS =
-[
-    String.prototype.charCodeAt(9),     //TAB
-    String.prototype.charCodeAt(10),    //Line Feed 
-    String.prototype.charCodeAt(13),    //Vertical TAB 
-    String.prototype.charCodeAt(15),    //Carriage Return
-    ' '
-]
 
 function isLatin(chr)
 {
@@ -33,7 +25,16 @@ function isDigit(chr)
 
 function isSpace(chr)
 {
-    return SPACE_SYMBOLS.includes(chr);
+    return (chr === ' ') ||
+           (chr === String.prototype.charCodeAt(9)) ||    //TAB
+           (chr === String.prototype.charCodeAt(10)) ||   //Line Feed
+           (chr === String.prototype.charCodeAt(13)) ||   //Vertical TAB
+           (chr === String.prototype.charCodeAt(15));     //Carriage Return
+}
+
+function isDigitDelimiter(chr)
+{
+    return (chr === '.') || (chr === ',');
 }
 
 function getCharType(chr)
@@ -42,41 +43,11 @@ function getCharType(chr)
         return CharType.LATIN;
     if(isDigit(chr))
         return CharType.DIGIT;
+    if(isDigitDelimiter(chr))
+        return CharType.DIGIT_DELIMITER;
     if(isSpace(chr))
         return CharType.SPACE;
     return CharType.OTHER;
-}
-
-function extractEntireNumberFromArrayEnd(chrArr)
-{
-    let result = '';
-    while (chrArr.length > 0)
-    {
-        let chr = chrArr.pop();
-        if (!isDigit(chr))
-        {
-            chrArr.push(chr);
-            break;
-        }
-        result += chr;
-    }
-    return result;
-}
-
-function extractEntireWordFromArrayEnd(chrArr)
-{
-    let result = '';
-    while (chrArr.length > 0)
-    {
-        let chr = chrArr.pop();
-        if (!isLatin(chr))
-        {
-            chrArr.push(chr);
-            break;
-        }
-        result += chr;
-    }
-    return result;
 }
 
 /**
@@ -86,26 +57,46 @@ function extractEntireWordFromArrayEnd(chrArr)
  */
 export function splitMathExpressionToTokens(mathExpression)
 {
-    let expr = mathExpression.split('').reverse();
     let result = [];
-    while (expr.length > 0)
+    for (let i = 0; i < mathExpression.length; i++)
     {
-        let chr = expr.pop();
-        let chrType = getCharType(chr);
-        switch (chrType)
+        let currChar = mathExpression[i];
+        let prevChar = mathExpression[i - 1];
+        if (prevChar === undefined)
+            prevChar = ' ';
+        let currCharType = getCharType(currChar);
+        let prevCharType = getCharType(prevChar);
+        switch (currCharType)
         {
             case CharType.DIGIT:
-                let number = chr + extractEntireNumberFromArrayEnd(expr);
-                result.push(number);
+                if (prevCharType === CharType.DIGIT ||
+                    prevCharType === CharType.DIGIT_DELIMITER)
+                {
+                  result[result.length - 1] += currChar;
+                  break;
+                }
+                result.push(currChar);
+                break;
+            case CharType.DIGIT_DELIMITER:
+                if (prevCharType === CharType.DIGIT)
+                {
+                  result[result.length - 1] += currChar;
+                  break;
+                }
+                result.push(currChar);
                 break;
             case CharType.LATIN:
-                let word = chr + extractEntireWordFromArrayEnd(expr);
-                result.push(word);
+                if(prevCharType !== CharType.SPACE)
+                {
+                    result[result.length - 1] += currChar;
+                    break;
+                }
+                result.push(currChar);
                 break;
             case CharType.SPACE:
                 break;
             default:
-                result.push(chr);
+                result.push(currChar);
                 break;
         }
     }
