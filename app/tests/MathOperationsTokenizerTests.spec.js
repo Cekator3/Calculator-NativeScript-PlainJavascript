@@ -12,7 +12,8 @@ function testSimpleMathExpressionTokenizing(assert)
         '0',
         '2 + 2',
         '1 * 2',
-        '1++'
+        '1++',
+        '1.02 * 2'
     ];
     let expectedOutputs =
     [
@@ -20,7 +21,8 @@ function testSimpleMathExpressionTokenizing(assert)
         ['0'],
         ['2', '+', '2'],
         ['1', '*', '2'],
-        ['1', '+', '+']
+        ['1', '+', '+'],
+        [ '1.02', '*', '2']
     ]
     for (let i = 0; i < inputs.length; i++) 
     {

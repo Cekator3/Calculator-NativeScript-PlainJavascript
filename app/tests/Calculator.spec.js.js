@@ -16,7 +16,8 @@ function testSimpleMathExpressionEvaluating(assert)
         '1++',
         '1 + 3 * 2',
         '3!*8',
-        '2 * 2 * 2 ^ 3'
+        '2 * 2 * 2 ^ 3',
+        '1.02 * 2'
     ];
     let expectedOutputs =
     [
@@ -27,7 +28,8 @@ function testSimpleMathExpressionEvaluating(assert)
         1,
         7,
         48,
-        32
+        32,
+        2.04
     ]
     for (let i = 0; i < inputs.length; i++) 
     {

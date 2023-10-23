@@ -3,6 +3,7 @@
 
     <StackLayout class='calculator'>
         <FlexboxLayout class="user-last-input">
+            <!--
             <Label>
             <FormattedString>
                 <Span text="6000 " />
@@ -14,14 +15,16 @@
                 <Span text="2" />
             </FormattedString>
             </Label>
+            -->
+            <Label text="{{ previousMathExpression }}" />           
         </FlexboxLayout>
         <FlexboxLayout class="user-current-input">
-            <Label text="=12,454" />           
+            <Label text="{{ currentMathExpression }}" />           
         </FlexboxLayout>
         <FlexboxLayout class='calculator-buttons'>
             <FlexboxLayout>
                 <Button text="C" class="Text-Deleter"></Button>
-                <Button text="sin" class="Function"></Button>
+                <Button text="sin" class="Function" tap="{{ AddSubstringToMathExpression }}" substr="sin("></Button>
                 <Button text="7" class="Number"></Button>
                 <Button text="4" class="Number"></Button>
                 <Button text="1" class="Number"></Button>
