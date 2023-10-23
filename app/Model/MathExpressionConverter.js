@@ -3,8 +3,8 @@
 ///////////////////////////////////////////////////////////////////
 
 import { splitMathExpressionToTokens } from "./MathOperationsTokenizer";
-import 
-{ 
+import
+{
     isAriphmeticOperation,
     isPostfixOperation,
     isPrefixOperation,
@@ -32,15 +32,31 @@ function isDigit(chr)
 
 function isNumber(token)
 {
+    if (isDecimalDelimiter(token))
+        return false;
     for (let chr of token)
-        if (!isDigit(chr))
+        if ((!isDigit(chr)) && (!isDecimalDelimiter(chr)))
             return false;
     return true;
 }
 
+function isDecimalDelimiter(chr)
+{
+    return (chr === '.') || (chr === ',');
+}
+
+function countDecimalDelimiters(token)
+{
+    let result = 0;
+    for (let chr of token)
+        if (isDecimalDelimiter(chr))
+            result++;
+    return result;
+}
+
 function isMathOperation(token)
 {
-    return isAriphmeticOperation(token) || 
+    return isAriphmeticOperation(token) ||
            isPostfixOperation(token) ||
            isPrefixOperation(token);
 }
@@ -64,7 +80,7 @@ function getTokenType(token)
 
 function isUnaryOperation(prevToken)
 {
-    if (prevToken === undefined) 
+    if (prevToken === undefined)
         return true;
     let prevTokenType = getTokenType(prevToken);
     return (prevTokenType === TokenType.ARIPHMETIC_OPERATION) ||
@@ -75,7 +91,7 @@ function extractItemsUntilOpeningBracketFromStack(bracket, stack)
 {
     let result = [];
     while (stack.length > 0)
-    { 
+    {
         let token = stack.pop();
         if (token === bracket)
             return result;
@@ -178,6 +194,32 @@ export class UnexpectedMathOperationFoundException extends Error
     }
 }
 
+export class TooManyDecimalDelimitersInNumberFoundException extends Error
+{
+    token;
+    tokenPosition;
+    constructor (token, tokenPosition)
+    {
+        super('Found too many decimal delimiters in number "' + token + '" at token position ' + tokenPosition);
+        this.token = tokenPosition;
+        this.tokenPosition = tokenPosition;
+    }
+}
+
+export class UnexpectedDecimalDelimiterPositionException extends Error
+{
+    token;
+    tokenPosition;
+    delimiterPosition;
+    constructor (token, tokenPosition, delimiterPosition)
+    {
+        super('Unexpected decimal delimiter in number "' + token + '" at token position ' + tokenPosition + ' at delimiter position ' + delimiterPosition);
+        this.token = tokenPosition;
+        this.tokenPosition = tokenPosition;
+        this.delimiterPosition = delimiterPosition;
+    }
+}
+
 export class DeveloperForgotToWriteImplementationOfMathOperationException extends Error
 {
     operator;
@@ -194,10 +236,12 @@ export class DeveloperForgotToWriteImplementationOfMathOperationException extend
  * Generates postfix expression from given math expression
  * @param {string} mathExpression
  * @throws {UnknownMathOperationException}
- * @throws {UnpairedBracketsFoundException}
  * @throws {UnexpectedMathOperationFoundException}
- * @throws {OpeningBracketExpectedButNotFoundException}
  * @throws {DeveloperForgotToWriteImplementationOfMathOperationException}
+ * @throws {UnpairedBracketsFoundException}
+ * @throws {OpeningBracketExpectedButNotFoundException}
+ * @throws {TooManyDecimalDelimitersInNumberFoundException}
+ * @throws {UnexpectedDecimalDelimiterPositionException}
  * @returns {string[]}
  */
 export function calculatePostfixForm(mathExpression)
@@ -207,7 +251,7 @@ export function calculatePostfixForm(mathExpression)
     let stack = [];
     let temp = [];
     let isOpeningBracketRequired = false;
-    for (let i = 0; i < tokens.length; i++) 
+    for (let i = 0; i < tokens.length; i++)
     {
         let tokenType = getTokenType(tokens[i]);
         if(isOpeningBracketRequired && (tokenType !== TokenType.OPENING_BRACKET))
@@ -216,6 +260,12 @@ export function calculatePostfixForm(mathExpression)
         switch (tokenType)
         {
             case TokenType.NUMBER:
+                if (countDecimalDelimiters(tokens[i]) > 1)
+                    throw new TooManyDecimalDelimitersInNumberFoundException(tokens[i], i + 1)
+                if (isDecimalDelimiter(tokens[i][0]))
+                    throw new UnexpectedDecimalDelimiterPositionException(tokens[i], i + 1, 1);
+                if (isDecimalDelimiter(tokens[i].at(-1)))
+                    throw new UnexpectedDecimalDelimiterPositionException(tokens[i], i + 1, tokens[i].length);
                 result.push(tokens[i]);
                 break;
             case TokenType.POSTFIX_OPERATION:
@@ -224,7 +274,7 @@ export function calculatePostfixForm(mathExpression)
                 result.push(tokens[i]);
                 break;
             case TokenType.PREFIX_OPERATION:
-                isOpeningBracketRequired = (tokens[i] === 'cos') || 
+                isOpeningBracketRequired = (tokens[i] === 'cos') ||
                                            (tokens[i] === 'sin');
                 stack.push(tokens[i]);
                 break;

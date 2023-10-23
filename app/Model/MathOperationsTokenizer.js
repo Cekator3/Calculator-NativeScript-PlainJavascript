@@ -86,7 +86,7 @@ export function splitMathExpressionToTokens(mathExpression)
                 result.push(currChar);
                 break;
             case CharType.LATIN:
-                if(prevCharType !== CharType.SPACE)
+                if (prevCharType === CharType.LATIN)
                 {
                     result[result.length - 1] += currChar;
                     break;
