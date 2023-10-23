@@ -147,7 +147,7 @@ function getOperationPriority(operation)
         case '(':
             return -1;
         default:
-            undefined;
+            return undefined;
     }
 }
 
@@ -297,7 +297,7 @@ export function generatePostfixFormFromMathExpression(mathExpression)
         {
             case TokenType.NUMBER:
                 if (countDecimalDelimiters(tokens[i]) > 1)
-                    throw new TooManyDecimalDelimitersInNumberFoundException(tokens[i], charPosition)
+                    throw new TooManyDecimalDelimitersInNumberFoundException(tokens[i], charPosition);
                 if (isDecimalDelimiter(tokens[i][0]))
                     throw new UnexpectedDecimalDelimiterPositionException(tokens[i], charPosition);
                 if (isDecimalDelimiter(tokens[i].at(-1)))
@@ -321,7 +321,7 @@ export function generatePostfixFormFromMathExpression(mathExpression)
                 temp = extractItemsUntilOpeningBracketFromStack('(', stack);
                 if (temp === false)
                     throw new UnpairedBracketsFoundException(tokens[i], charPosition);
-                result = result.concat(temp)
+                result = result.concat(temp);
                 break;
             case TokenType.ARITHMETIC_OPERATION:
                 if (isUnaryOperation(tokens[i - 1]))
@@ -352,7 +352,7 @@ export function generatePostfixFormFromMathExpression(mathExpression)
                         err.mathExpression = tokens;
                     throw err;
                 }
-                result = result.concat(temp)
+                result = result.concat(temp);
                 stack.push(tokens[i]);
                 break;
             case TokenType.UNKNOWN:
