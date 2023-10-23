@@ -1,5 +1,5 @@
 import { Observable } from '@nativescript/core';
-import { evaluateExpression } from '~/Model/Calculator';
+import { calculateValueFromMathExpression } from '~/Model/MathExpressionValueCalculator';
 
 let mathExpressionTokens = [];
 const viewModel = new Observable();
@@ -22,7 +22,7 @@ function AddSubstringToMathExpression(args)
     viewModel.set('currentMathExpression', getCurrentMathExpression);
 }
 
-export function getCalculatorViewModel() 
+export function getCalculatorViewModel()
 {
     viewModel.previousMathExpression = '';
     viewModel.currentMathExpression = '';

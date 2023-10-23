@@ -1,13 +1,13 @@
 import
 {
-    calculatePostfixForm,
+    generatePostfixFormFromMathExpression,
     UnknownMathOperationException,
     UnpairedBracketsFoundException,
     UnexpectedMathOperationFoundException,
     OpeningBracketExpectedButNotFoundException,
     TooManyDecimalDelimitersInNumberFoundException,
     UnexpectedDecimalDelimiterPositionException
-} from "~/Model/MathExpressionConverter";
+} from "~/Model/MathExpressionConverterToPostfixForm";
 
 QUnit.test("Simple math expressions converting", testSimpleMathExpressionConverting);
 QUnit.test("Regular math expressions converting", testRegularMathExpressionConverting);
@@ -71,7 +71,7 @@ function testSimpleMathExpressionConverting(assert)
     for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
-            calculatePostfixForm(inputs[i]),
+            generatePostfixFormFromMathExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
         );
@@ -101,7 +101,7 @@ function testRegularMathExpressionConverting(assert)
     for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
-            calculatePostfixForm(inputs[i]),
+            generatePostfixFormFromMathExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
         );
@@ -123,7 +123,7 @@ function testComplexMathExpressionConverting(assert)
     for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
-            calculatePostfixForm(inputs[i]),
+            generatePostfixFormFromMathExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
         );
@@ -146,7 +146,7 @@ function testConvertingMathExpressionsWithNotPairedOperations(assert)
         assert.throws(
             function ()
             {
-                calculatePostfixForm(inputs[i]);
+                generatePostfixFormFromMathExpression(inputs[i]);
             },
             expectedException
         );
@@ -167,7 +167,7 @@ function testConvertingWrongPairedMathExpressions(assert)
         assert.throws(
             function ()
             {
-                calculatePostfixForm(inputs[i]);
+                generatePostfixFormFromMathExpression(inputs[i]);
             },
             expectedException
         );
@@ -190,7 +190,7 @@ function testConvertingMathExpressionsThatContainsUnknownMathOperation(assert)
         assert.throws(
             function ()
             {
-                calculatePostfixForm(inputs[i]);
+                generatePostfixFormFromMathExpression(inputs[i]);
             },
             expectedException
         );
@@ -213,7 +213,7 @@ function testUnexpectedMathOperationsInExpression(assert)
         assert.throws(
             function ()
             {
-                calculatePostfixForm(inputs[i]);
+                generatePostfixFormFromMathExpression(inputs[i]);
             },
             expectedException
         );
@@ -232,7 +232,7 @@ function testTooManyDecimalDelimiters(assert)
         assert.throws(
             function ()
             {
-                calculatePostfixForm(inputs[i]);
+                generatePostfixFormFromMathExpression(inputs[i]);
             },
             expectedException
         );
@@ -252,7 +252,7 @@ function testUnexpectedDecimalDelimiters(assert)
         assert.throws(
             function ()
             {
-                calculatePostfixForm(inputs[i]);
+                generatePostfixFormFromMathExpression(inputs[i]);
             },
             expectedException
         );

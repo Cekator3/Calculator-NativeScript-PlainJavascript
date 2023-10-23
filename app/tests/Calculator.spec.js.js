@@ -1,13 +1,13 @@
-import { evaluateExpression } from "~/Model/Calculator";
+import { calculateValueFromMathExpression } from "~/Model/MathExpressionValueCalculator";
 
-//QUnit.test("Simple math expressions evaluating", testSimpleMathExpressionEvaluating)
-//QUnit.test("Regular math expressions evaluating", testRegularMathExpressionEvaluating)
-//QUnit.test("Complex math expressions evaluating", testComplexMathExpressionEvaluating)
-//QUnit.test('Math expressions with float answer', testMathExpressionsWithFloatAnswer);
+QUnit.test("Simple math expressions evaluating", testSimpleMathExpressionEvaluating)
+QUnit.test("Regular math expressions evaluating", testRegularMathExpressionEvaluating)
+QUnit.test("Complex math expressions evaluating", testComplexMathExpressionEvaluating)
+QUnit.test('Math expressions with float answer', testMathExpressionsWithFloatAnswer);
 
 function testSimpleMathExpressionEvaluating(assert)
 {
-    let inputs = 
+    let inputs =
     [
         '2',
         '0',
@@ -31,10 +31,10 @@ function testSimpleMathExpressionEvaluating(assert)
         32,
         2.04
     ]
-    for (let i = 0; i < inputs.length; i++) 
+    for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
-            evaluateExpression(inputs[i]),
+            calculateValueFromMathExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
         );
@@ -43,7 +43,7 @@ function testSimpleMathExpressionEvaluating(assert)
 
 function testRegularMathExpressionEvaluating(assert)
 {
-    let inputs = 
+    let inputs =
     [
         '3^2 +4      -15',
     ];
@@ -51,10 +51,10 @@ function testRegularMathExpressionEvaluating(assert)
     [
         -2
     ]
-    for (let i = 0; i < inputs.length; i++) 
+    for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
-            evaluateExpression(inputs[i]),
+            calculateValueFromMathExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
         );
@@ -63,7 +63,7 @@ function testRegularMathExpressionEvaluating(assert)
 
 function testComplexMathExpressionEvaluating(assert)
 {
-    let inputs = 
+    let inputs =
     [
         '15/(7-(1+1))*3-(2+(1+1))*15/(7-(200+1))*3-(2+(1+1))*(15/(7-(1+1))*3-(2+(1+1))+15/(7-(1+1))*3-(2+(1+1)))'
     ];
@@ -71,10 +71,10 @@ function testComplexMathExpressionEvaluating(assert)
     [
         -30.0721649484536082
     ]
-    for (let i = 0; i < inputs.length; i++) 
+    for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
-            evaluateExpression(inputs[i]),
+            calculateValueFromMathExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
         );
@@ -83,18 +83,24 @@ function testComplexMathExpressionEvaluating(assert)
 
 function testMathExpressionsWithFloatAnswer(assert)
 {
-    let inputs = 
+    let inputs =
     [
-        'sin(2) * cos(2)'
+        'sin(2) * cos(2)',
+        '13^2.03',
+        '13^-2.03',
+        '13^--2.03',
     ];
     let expectedOutputs =
     [
-        -0.37840124765396416
+        -0.37840124765396416,
+        182.51770748794763,
+        0.0054789204497653135,
+        182.51770748794763,
     ]
-    for (let i = 0; i < inputs.length; i++) 
+    for (let i = 0; i < inputs.length; i++)
     {
         assert.deepEqual(
-            evaluateExpression(inputs[i]),
+            calculateValueFromMathExpression(inputs[i]),
             expectedOutputs[i],
             "Error"
         );

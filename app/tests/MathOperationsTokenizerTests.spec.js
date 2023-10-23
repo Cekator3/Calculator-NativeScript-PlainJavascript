@@ -1,4 +1,4 @@
-import { splitMathExpressionToTokens } from "~/Model/MathOperationsTokenizer";
+import { splitMathExpressionToTokens } from "~/Model/MathExpressionTokenizer";
 
 QUnit.test("Simple math expressions tokenizing", testSimpleMathExpressionTokenizing)
 QUnit.test("Regular math expressions tokenizing", testRegularMathExpressionTokenizing)

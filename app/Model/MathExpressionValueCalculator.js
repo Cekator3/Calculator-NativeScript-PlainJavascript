@@ -1,36 +1,41 @@
 ////////////////////////////////////////////////////////////
-//Module for calculating a value from a postfix expression
+//Module for calculating a value from a math expression
 ////////////////////////////////////////////////////////////
-import 
-{ 
-    calculatePostfixForm,
+import
+{
+    generatePostfixFormFromMathExpression,
     DeveloperForgotToWriteImplementationOfMathOperationException,
-} 
-from "./MathExpressionConverter";
+}
+from "./MathExpressionConverterToPostfixForm";
 
-import 
-{ 
-    isAriphmeticOperation,
+import
+{
+    isArithmeticOperation,
     isPostfixOperation,
     isPrefixOperation,
-} from "./OperationTypes";
+} from "./MathOperationTypeIdentifier";
 
 function isDigit(chr)
 {
     return (chr >= '0') && (chr <= '9');
 }
 
+function isDecimalDelimiter(chr)
+{
+    return (chr === ',') || (chr === '.');
+}
+
 function isNumber(token)
 {
     for (let chr of token)
-        if (!isDigit(chr))
+        if (!isDigit(chr) && (!isDecimalDelimiter(chr)))
             return false;
     return true;
 }
 
 function isBinaryOperation(token)
 {
-    return isAriphmeticOperation(token);
+    return isArithmeticOperation(token);
 }
 
 function isUnaryOperation(token)
@@ -38,8 +43,14 @@ function isUnaryOperation(token)
     return isPostfixOperation(token) || isPrefixOperation(token);
 }
 
-function Factorial(n)
+function factorial(n)
 {
+    //Factorial of float is undefined (in this application)
+    if (!Number.isSafeInteger(n))
+        throw new AttemptToCalculateFactorialOfFloatNumberException();
+    //Factorial of negative integer is undefined
+    if(n < 0)
+        throw new AttemptToCalculateFactorialOfNegativeNumberException();
     let result = 1;
     while(n > 1)
     {
@@ -64,13 +75,13 @@ function calculateBinaryExpression(a, b, operation)
         case '^':
             return Math.pow(a, b);
         default:
-            return undefined;
+            throw new DeveloperForgotToWriteImplementationOfMathOperationException(operation, '');
     }
 }
 
 function calculateUnaryExpression(a, operation)
 {
-    switch (operation) 
+    switch (operation)
     {
         case 'sin':
             return Math.sin(a);
@@ -79,29 +90,39 @@ function calculateUnaryExpression(a, operation)
         case '~':
             return -a;
         case '!':
-            return Factorial(a);
+            return factorial(a);
         default:
-            return undefined;
+            throw new DeveloperForgotToWriteImplementationOfMathOperationException(operation, '');
     }
 }
+
+export class AttemptToCalculateFactorialOfNegativeNumberException extends Error { }
+
+export class AttemptToCalculateFactorialOfFloatNumberException extends Error { }
 
 /**
  * Calculates value of math expression
  * @param {string} expression
  * @throws {UnknownMathOperationException}
- * @throws {UnpairedBracketsFoundException}
  * @throws {UnexpectedMathOperationFoundException}
+ * @throws {DeveloperForgotToWriteImplementationOfMathOperationException}
+ * @throws {UnpairedBracketsFoundException}
+ * @throws {OpeningBracketExpectedButNotFoundException}
+ * @throws {TooManyDecimalDelimitersInNumberFoundException}
+ * @throws {UnexpectedDecimalDelimiterPositionException}
+ * @throws {AttemptToCalculateFactorialOfFloatNumberException}
+ * @throws {AttemptToCalculateFactorialOfNegativeNumberException}
  * @throws {DeveloperForgotToWriteImplementationOfMathOperationException}
  * @returns {number}
  */
-export function evaluateExpression(expression)
+export function calculateValueFromMathExpression(expression)
 {
-    let tokens = calculatePostfixForm(expression);
+    let tokens = generatePostfixFormFromMathExpression(expression);
     let stack = [];
     let a = 0;
     let b = 0;
     let result = 0;
-    for (let i = 0; i < tokens.length; i++) 
+    for (let i = 0; i < tokens.length; i++)
     {
         if (isNumber(tokens[i]))
         {
@@ -119,8 +140,6 @@ export function evaluateExpression(expression)
             else
                 a = stack.pop();
             result = calculateBinaryExpression(a, b, tokens[i]);
-            if (result === undefined)
-                throw new DeveloperForgotToWriteImplementationOfMathOperationException(tokens[i], tokens);
             stack.push(result);
             continue;
         }
@@ -131,10 +150,7 @@ export function evaluateExpression(expression)
             else
                 a = stack.pop();
             result = calculateUnaryExpression(a, tokens[i]);
-            if (result === undefined)
-                throw new DeveloperForgotToWriteImplementationOfMathOperationException(tokens[i], tokens);
             stack.push(result);
-            continue;
         }
     }
     return stack.pop();

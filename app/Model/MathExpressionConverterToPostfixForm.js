@@ -2,32 +2,35 @@
 //module for converting a mathematical expression into postfix form
 ///////////////////////////////////////////////////////////////////
 
-import { splitMathExpressionToTokens } from "./MathOperationsTokenizer";
+import { splitMathExpressionToTokens } from "./MathExpressionTokenizer";
 import
 {
-    isAriphmeticOperation,
+    isArithmeticOperation,
     isPostfixOperation,
-    isPrefixOperation,
-    getOperationPriority,
-    getUnaryVersionOfOperation
-} from "./OperationTypes";
+    isPrefixOperation
+} from "./MathOperationTypeIdentifier";
 
 
 //Emulating enum type
 class TokenType
 {
     static NUMBER = 0;
-    static ARIPHMETIC_OPERATION = 1
+    static ARITHMETIC_OPERATION = 1
     static POSTFIX_OPERATION = 2;
     static PREFIX_OPERATION = 3;
     static OPENING_BRACKET = 4;
     static CLOSING_BRACKET = 5;
-    static UKNOWN = 6;
+    static UNKNOWN = 6;
 }
 
 function isDigit(chr)
 {
     return (chr >= '0') && (chr <= '9');
+}
+
+function isDecimalDelimiter(chr)
+{
+    return (chr === '.') || (chr === ',');
 }
 
 function isNumber(token)
@@ -38,11 +41,6 @@ function isNumber(token)
         if ((!isDigit(chr)) && (!isDecimalDelimiter(chr)))
             return false;
     return true;
-}
-
-function isDecimalDelimiter(chr)
-{
-    return (chr === '.') || (chr === ',');
 }
 
 function countDecimalDelimiters(token)
@@ -56,7 +54,7 @@ function countDecimalDelimiters(token)
 
 function isMathOperation(token)
 {
-    return isAriphmeticOperation(token) ||
+    return isArithmeticOperation(token) ||
            isPostfixOperation(token) ||
            isPrefixOperation(token);
 }
@@ -65,8 +63,8 @@ function getTokenType(token)
 {
     if (isNumber(token))
         return TokenType.NUMBER;
-    if (isAriphmeticOperation(token))
-        return TokenType.ARIPHMETIC_OPERATION;
+    if (isArithmeticOperation(token))
+        return TokenType.ARITHMETIC_OPERATION;
     if (isPostfixOperation(token))
         return TokenType.POSTFIX_OPERATION;
     if (isPrefixOperation(token))
@@ -75,7 +73,7 @@ function getTokenType(token)
         return TokenType.OPENING_BRACKET;
     if (token === ')')
         return TokenType.CLOSING_BRACKET;
-    return TokenType.UKNOWN;
+    return TokenType.UNKNOWN;
 }
 
 function isUnaryOperation(prevToken)
@@ -83,8 +81,22 @@ function isUnaryOperation(prevToken)
     if (prevToken === undefined)
         return true;
     let prevTokenType = getTokenType(prevToken);
-    return (prevTokenType === TokenType.ARIPHMETIC_OPERATION) ||
+    return (prevTokenType === TokenType.ARITHMETIC_OPERATION) ||
            (prevTokenType === TokenType.OPENING_BRACKET);
+}
+
+function getUnaryVersionOfOperation(operation)
+{
+    switch (operation)
+    {
+        case '-':
+        case '~':
+            return '~';
+        case '+':
+            return '';
+        default:
+            return undefined;
+    }
 }
 
 function extractItemsUntilOpeningBracketFromStack(bracket, stack)
@@ -114,7 +126,32 @@ function extractAllOperationsFromStack(stack)
     return result;
 }
 
-function extractAriphmeticAndHighPriorityOperationsFromStack(priorityLimit, stack)
+function getOperationPriority(operation)
+{
+    switch (operation)
+    {
+        case '~':
+            return 10;
+        case 'sin':
+        case 'cos':
+            return 9;
+        case '!':
+        case '^':
+            return 8;
+        case '*':
+        case '/':
+            return 7;
+        case '+':
+        case '-':
+            return 6;
+        case '(':
+            return -1;
+        default:
+            undefined;
+    }
+}
+
+function extractArithmeticAndHighPriorityOperationsFromStack(priorityLimit, stack)
 {
     let result = [];
     while (stack.length > 0)
@@ -139,83 +176,81 @@ function isPostfixOperationCanGoAfterThisToken(token)
         return false;
     let tokenType = getTokenType(token);
     return (tokenType !== TokenType.OPENING_BRACKET) &&
-           (tokenType !== TokenType.ARIPHMETIC_OPERATION) &&
+           (tokenType !== TokenType.ARITHMETIC_OPERATION) &&
            (tokenType !== TokenType.PREFIX_OPERATION);
 }
 
 export class OpeningBracketExpectedButNotFoundException extends Error
 {
     tokenFound;
-    tokenPosition;
-    constructor (tokenFound, tokenPosition)
+    position;
+    constructor (tokenFound, position)
     {
-        super('ERROR: Opening bracket expecteed but found "' + tokenFound + '" at position ' + tokenPosition);
+        super('ERROR: Opening bracket expected but found "' + tokenFound + '" at ' + position);
         this.tokenFound = tokenFound;
-        this.tokenPosition = tokenPosition;
+        this.position = position;
     }
 }
 
 export class UnknownMathOperationException extends Error
 {
     unknownOperation;
-    tokenPosition;
-    constructor (unknownOperation, tokenPosition)
+    position;
+    constructor (unknownOperation, position)
     {
-        super('ERROR: Unknown operation ' + unknownOperation + ' at token position ' + tokenPosition);
+        super('ERROR: Unknown operation ' + unknownOperation + ' at ' + position);
         this.unknownOperation = unknownOperation;
-        this.tokenPosition = tokenPosition;
+        this.position = position;
     }
 }
 
 export class UnpairedBracketsFoundException extends Error
 {
     bracket;
-    tokenPosition;
-    constructor (bracket = undefined, tokenPosition = undefined)
+    position;
+    constructor (bracket = undefined, position = undefined)
     {
         if (bracket === undefined)
             super('Math expression is unpaired');
         else
-            super('Found unpaired bracket "' + bracket + '" at token position ' + tokenPosition);
+            super('Found unpaired bracket "' + bracket + '" at ' + position);
         this.bracket = bracket;
-        this.tokenPosition = tokenPosition;
+        this.position = position;
     }
 }
 
 export class UnexpectedMathOperationFoundException extends Error
 {
     operation;
-    tokenPosition;
-    constructor (operation, tokenPosition)
+    position;
+    constructor (operation, position)
     {
-        super('Found unexpected math operation "' + operation + '" at token ' + tokenPosition);
+        super('Found unexpected math operation "' + operation + '" at ' + position);
         this.operation = operation;
-        this.tokenPosition = tokenPosition;
+        this.position = position;
     }
 }
 
 export class TooManyDecimalDelimitersInNumberFoundException extends Error
 {
     token;
-    tokenPosition;
-    constructor (token, tokenPosition)
+    position;
+    constructor (token, position)
     {
-        super('Found too many decimal delimiters in number "' + token + '" at token position ' + tokenPosition);
-        this.token = tokenPosition;
-        this.tokenPosition = tokenPosition;
+        super('Found too many decimal delimiters in number "' + token + '" at ' + position);
+        this.token = token;
+        this.position = position;
     }
 }
 
 export class UnexpectedDecimalDelimiterPositionException extends Error
 {
     token;
-    tokenPosition;
     delimiterPosition;
-    constructor (token, tokenPosition, delimiterPosition)
+    constructor (token, delimiterPosition)
     {
-        super('Unexpected decimal delimiter in number "' + token + '" at token position ' + tokenPosition + ' at delimiter position ' + delimiterPosition);
-        this.token = tokenPosition;
-        this.tokenPosition = tokenPosition;
+        super('Unexpected decimal delimiter in number "' + token + '" at ' + delimiterPosition + ' at ' + delimiterPosition);
+        this.token = token;
         this.delimiterPosition = delimiterPosition;
     }
 }
@@ -244,33 +279,34 @@ export class DeveloperForgotToWriteImplementationOfMathOperationException extend
  * @throws {UnexpectedDecimalDelimiterPositionException}
  * @returns {string[]}
  */
-export function calculatePostfixForm(mathExpression)
+export function generatePostfixFormFromMathExpression(mathExpression)
 {
     let tokens = splitMathExpressionToTokens(mathExpression);
     let result = [];
     let stack = [];
     let temp = [];
     let isOpeningBracketRequired = false;
+    let charPosition = 0;
     for (let i = 0; i < tokens.length; i++)
     {
         let tokenType = getTokenType(tokens[i]);
         if(isOpeningBracketRequired && (tokenType !== TokenType.OPENING_BRACKET))
-            throw new OpeningBracketExpectedButNotFoundException(tokens[i], i + 1);
+            throw new OpeningBracketExpectedButNotFoundException(tokens[i], charPosition);
         isOpeningBracketRequired = false;
         switch (tokenType)
         {
             case TokenType.NUMBER:
                 if (countDecimalDelimiters(tokens[i]) > 1)
-                    throw new TooManyDecimalDelimitersInNumberFoundException(tokens[i], i + 1)
+                    throw new TooManyDecimalDelimitersInNumberFoundException(tokens[i], charPosition)
                 if (isDecimalDelimiter(tokens[i][0]))
-                    throw new UnexpectedDecimalDelimiterPositionException(tokens[i], i + 1, 1);
+                    throw new UnexpectedDecimalDelimiterPositionException(tokens[i], charPosition);
                 if (isDecimalDelimiter(tokens[i].at(-1)))
-                    throw new UnexpectedDecimalDelimiterPositionException(tokens[i], i + 1, tokens[i].length);
+                    throw new UnexpectedDecimalDelimiterPositionException(tokens[i], charPosition + tokens[i].length - 1);
                 result.push(tokens[i]);
                 break;
             case TokenType.POSTFIX_OPERATION:
                 if (!isPostfixOperationCanGoAfterThisToken(tokens[i - 1]))
-                    throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
+                    throw new UnexpectedMathOperationFoundException(tokens[i], charPosition);
                 result.push(tokens[i]);
                 break;
             case TokenType.PREFIX_OPERATION:
@@ -284,27 +320,27 @@ export function calculatePostfixForm(mathExpression)
             case TokenType.CLOSING_BRACKET:
                 temp = extractItemsUntilOpeningBracketFromStack('(', stack);
                 if (temp === false)
-                    throw new UnpairedBracketsFoundException(tokens[i], i + 1);
+                    throw new UnpairedBracketsFoundException(tokens[i], charPosition);
                 result = result.concat(temp)
                 break;
-            case TokenType.ARIPHMETIC_OPERATION:
+            case TokenType.ARITHMETIC_OPERATION:
                 if (isUnaryOperation(tokens[i - 1]))
                 {
                     let token = getUnaryVersionOfOperation(tokens[i]);
                     if (token === undefined)
-                        throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
+                        throw new UnexpectedMathOperationFoundException(tokens[i], charPosition);
                     if (token !== '')
                         stack.push(token);
                     break;
                 }
                 if (isPrefixOperation(tokens[i - 1]))
-                    throw new UnexpectedMathOperationFoundException(tokens[i], i + 1);
+                    throw new UnexpectedMathOperationFoundException(tokens[i], charPosition);
                 let operationPriority = getOperationPriority(tokens[i]);
                 if (operationPriority === undefined)
                     throw new DeveloperForgotToWriteImplementationOfMathOperationException(tokens[i], tokens);
                 try
                 {
-                    temp = extractAriphmeticAndHighPriorityOperationsFromStack
+                    temp = extractArithmeticAndHighPriorityOperationsFromStack
                     (
                         operationPriority,
                         stack
@@ -319,9 +355,10 @@ export function calculatePostfixForm(mathExpression)
                 result = result.concat(temp)
                 stack.push(tokens[i]);
                 break;
-            case TokenType.UKNOWN:
-                throw new UnknownMathOperationException(tokens[i], i + 1);
+            case TokenType.UNKNOWN:
+                throw new UnknownMathOperationException(tokens[i], charPosition);
         }
+        charPosition += tokens[i].length;
     }
     temp = extractAllOperationsFromStack(stack);
     if (temp === false)
