@@ -85,6 +85,17 @@ export class AttemptToCalculateFactorialOfNegativeNumberException extends Error 
 
 export class AttemptToCalculateFactorialOfFloatNumberException extends Error { }
 
+export class NotEnoughBinaryMathOperatorsForCalculationException extends Error
+{
+    amountOfPlacesWhereNeedBinaryOperator;
+    constructor(amountOfPlacesWhereNeedBinaryOperator)
+    {
+        super('There are not enough binary operators in ' + amountOfPlacesWhereNeedBinaryOperator + ' places to fully calculate a mathematical expression');
+        this.amountOfPlacesWhereNeedBinaryOperator = amountOfPlacesWhereNeedBinaryOperator;
+    }
+}
+
+
 /**
  * Calculates value of math expression
  * @param {string} expression
@@ -95,6 +106,7 @@ export class AttemptToCalculateFactorialOfFloatNumberException extends Error { }
  * @throws {OpeningBracketExpectedButNotFoundException}
  * @throws {TooManyDecimalDelimitersInNumberFoundException}
  * @throws {UnexpectedDecimalDelimiterPositionException}
+ * @throws {NotEnoughBinaryMathOperatorsForCalculationException}
  * @throws {AttemptToCalculateFactorialOfFloatNumberException}
  * @throws {AttemptToCalculateFactorialOfNegativeNumberException}
  * @throws {DeveloperForgotToWriteImplementationOfMathOperationException}
@@ -138,5 +150,10 @@ export function calculateValueFromMathExpression(expression)
             stack.push(result);
         }
     }
-    return stack.pop();
+    //If user entered just unary plus, for example
+    if (stack.length === 0)
+        return 0;
+    if (stack.length > 1)
+        throw new NotEnoughBinaryMathOperatorsForCalculationException(stack.length - 1);
+    return stack[0];
 }
