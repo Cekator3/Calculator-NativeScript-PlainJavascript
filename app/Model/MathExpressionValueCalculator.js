@@ -109,7 +109,6 @@ export class NotEnoughBinaryMathOperatorsForCalculationException extends Error
  * @throws {NotEnoughBinaryMathOperatorsForCalculationException}
  * @throws {AttemptToCalculateFactorialOfFloatNumberException}
  * @throws {AttemptToCalculateFactorialOfNegativeNumberException}
- * @throws {DeveloperForgotToWriteImplementationOfMathOperationException}
  * @returns {number}
  */
 export function calculateValueFromMathExpression(expression)
@@ -123,7 +122,7 @@ export function calculateValueFromMathExpression(expression)
     {
         if (isNumber(tokens[i]))
         {
-            stack.push(+tokens[i]);
+            stack.push(tokens[i].replace(',', '.'));
             continue;
         }
         if (isBinaryOperation(tokens[i]))

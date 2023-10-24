@@ -128,12 +128,12 @@ function isPostfixOperationCanGoAfterThisToken(token)
 
 export class OpeningBracketExpectedButNotFoundException extends Error
 {
-    tokenFound;
+    foundedMathElement;
     position;
-    constructor (tokenFound, position)
+    constructor (foundedMathElement, position)
     {
-        super('ERROR: Opening bracket expected but found "' + tokenFound + '" at ' + position);
-        this.tokenFound = tokenFound;
+        super('ERROR: Opening bracket expected but found "' + foundedMathElement + '" at ' + position);
+        this.foundedMathElement = foundedMathElement;
         this.position = position;
     }
 }
@@ -179,24 +179,24 @@ export class UnexpectedMathOperationFoundException extends Error
 
 export class TooManyDecimalDelimitersInNumberFoundException extends Error
 {
-    token;
+    mathElement;
     position;
-    constructor (token, position)
+    constructor (mathElement, position)
     {
-        super('Found too many decimal delimiters in number "' + token + '" at ' + position);
-        this.token = token;
+        super('Found too many decimal delimiters in number "' + mathElement + '" at ' + position);
+        this.mathElement = mathElement;
         this.position = position;
     }
 }
 
 export class UnexpectedDecimalDelimiterPositionException extends Error
 {
-    token;
+    mathElement;
     delimiterPosition;
-    constructor (token, delimiterPosition)
+    constructor (mathElement, delimiterPosition)
     {
-        super('Unexpected decimal delimiter in number "' + token + '" at ' + delimiterPosition + ' at ' + delimiterPosition);
-        this.token = token;
+        super('Unexpected decimal delimiter in number "' + mathElement + '" at ' + delimiterPosition + ' at ' + delimiterPosition);
+        this.mathElement = mathElement;
         this.delimiterPosition = delimiterPosition;
     }
 }

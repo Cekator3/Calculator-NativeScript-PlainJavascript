@@ -34,8 +34,8 @@ export function splitMathExpressionToTokens(mathExpression)
             case CharType.DIGIT_DELIMITER:
                 if (prevCharType === CharType.DIGIT)
                 {
-                  result[result.length - 1] += currChar;
-                  break;
+                    result[result.length - 1] += currChar;
+                    break;
                 }
                 result.push(currChar);
                 break;
