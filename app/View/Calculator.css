@@ -26,11 +26,6 @@ ActionBar
     color: hsl(50, 0%, 50%);
 }
 
-.user-last-input .operation
-{
-    color: orange;
-}
-
 .user-current-input
 {
     height: 20%;

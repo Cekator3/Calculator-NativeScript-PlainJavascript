@@ -7,8 +7,8 @@
 
 import
 {
-    getTypeOfMathElement,
-    isClosingBracket,
+    getTypeOfMathElement, isArithmeticOperation,
+    isClosingBracket, isNumber,
     isOpeningBracket,
     isPostfixOperation,
     MathElementType,
@@ -29,11 +29,11 @@ export function clearMathExpression()
 function isComponentRequireSpaceSymbolAfterHim(component, nextComponent)
 {
     return !(isOpeningBracket(component) ||
-        isLatin(component) ||
-        isPostfixOperation(nextComponent) ||
-        isClosingBracket(nextComponent) ||
-        (nextComponent === '^') ||
-        (component === '^'));
+             isLatin(component) ||
+             isPostfixOperation(nextComponent) ||
+             isClosingBracket(nextComponent) ||
+             (nextComponent === '^') ||
+             (component === '^'));
 }
 
 /**
@@ -45,8 +45,8 @@ export function getMathExpression()
     let result = '';
     for (let i = 0; i < mathExpressionComponents.length; i++)
     {
-        let nextComponent = mathExpressionComponents[i + 1];
         let currComponent = mathExpressionComponents[i];
+        let nextComponent = mathExpressionComponents[i + 1];
         result += currComponent;
         if (isComponentRequireSpaceSymbolAfterHim(currComponent, nextComponent))
             result += ' ';
@@ -54,20 +54,25 @@ export function getMathExpression()
     return result.trimEnd();
 }
 
-function isComponentRequireBracket(prevComponentType, currComponentType)
+function getComponentType(component)
 {
-    return (prevComponentType === CharType.LATIN) &&
-           (currComponentType !== CharType.LATIN);
+    if ((component === undefined) || (component.length === 0))
+        return undefined;
+    if (component === 'Infinity')
+        return CharType.DIGIT;
+    return getCharType(component[0]);
+}
+
+function isComponentRequireBracket(componentType)
+{
+    return componentType === CharType.LATIN;
 }
 
 function isComponentMustReplacePreviousComponent(prevComponent, component)
 {
     if (prevComponent === undefined)
         return false;
-    let prevComponentType = getTypeOfMathElement(prevComponent);
-    let componentType = getTypeOfMathElement(component);
-    return (prevComponentType === MathElementType.ARITHMETIC_OPERATION) &&
-           (componentType === MathElementType.ARITHMETIC_OPERATION);
+    return isArithmeticOperation(prevComponent) && isArithmeticOperation(component);
 }
 
 function countDigitDelimiters(component)
@@ -107,16 +112,8 @@ function replaceLastComponent(component)
 export function addComponentToMathExpression(component)
 {
     let prevComponent = mathExpressionComponents.at(-1);
-    let prevComponentType = undefined;
-    if (prevComponent !== undefined)
-        prevComponentType = getCharType(prevComponent);
-    let currComponentType = getCharType(component[0]);
-    if (isComponentRequireBracket(prevComponentType, currComponentType))
-    {
-        mathExpressionComponents.push('(');
-        prevComponent = '(';
-        prevComponentType = getCharType(prevComponent);
-    }
+    let prevComponentType = getComponentType(prevComponent);
+    let currComponentType = getComponentType(component);
     switch (currComponentType)
     {
         case CharType.DIGIT:
@@ -142,11 +139,6 @@ export function addComponentToMathExpression(component)
             appendComponentToLastComponent(component);
             break;
         case CharType.LATIN:
-            if (prevComponentType === CharType.LATIN)
-            {
-                appendComponentToLastComponent(component);
-                break;
-            }
             mathExpressionComponents.push(component);
             break;
         case CharType.OTHER:
@@ -160,6 +152,8 @@ export function addComponentToMathExpression(component)
         case CharType.SPACE:
             break;
     }
+    if (isComponentRequireBracket(currComponentType))
+        mathExpressionComponents.push('(');
 }
 
 /**
@@ -168,7 +162,11 @@ export function addComponentToMathExpression(component)
  */
 export function removeLastComponentFromMathExpression()
 {
-    let removedComponent = mathExpressionComponents.pop();
-    if (isComponentRequireBracket(removedComponent))
+    mathExpressionComponents.pop();
+    if (mathExpressionComponents.length === 0)
+        return;
+    let preLastComponent = mathExpressionComponents.at(-1);
+    let preLastComponentType = getComponentType(preLastComponent);
+    if (isComponentRequireBracket(preLastComponentType))
         mathExpressionComponents.pop();
 }

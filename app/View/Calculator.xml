@@ -3,56 +3,43 @@
 
     <StackLayout class='calculator'>
         <FlexboxLayout class="user-last-input">
-            <!--
-            <Label>
-            <FormattedString>
-                <Span text="6000 " />
-                <Span text="/ " class="operation"/>
-                <Span text="2 " />
-                <Span text="* " class="operation"/>
-                <Span text="3227 " />
-                <Span text="* " class="operation"/>
-                <Span text="2" />
-            </FormattedString>
-            </Label>
-            -->
-            <Label text="{{ previousMathExpression }}" />           
+            <Label text="{{ previousMathExpression }}" />
         </FlexboxLayout>
         <FlexboxLayout class="user-current-input">
-            <Label text="{{ currentMathExpression }}" />           
+            <Label text="{{ currentMathExpression }}" />
         </FlexboxLayout>
         <FlexboxLayout class='calculator-buttons'>
             <FlexboxLayout>
-                <Button text="C" class="Text-Deleter"></Button>
-                <Button text="sin" class="Function" tap="{{ AddSubstringToMathExpression }}" substr="sin("></Button>
-                <Button text="7" class="Number"></Button>
-                <Button text="4" class="Number"></Button>
-                <Button text="1" class="Number"></Button>
-                <Button text="^" class="Number"></Button>
+                <Button text="C" class="Text-Deleter" tap="{{ ClearMathExpression }}"></Button>
+                <Button text="sin" class="Function" tap="{{ AddElementToMathExpression }}" mathElement="sin"></Button>
+                <Button text="7" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="7"></Button>
+                <Button text="4" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="4"></Button>
+                <Button text="1" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="1"></Button>
+                <Button text="^" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="^"></Button>
             </FlexboxLayout>
             <FlexboxLayout>
-                <Button text="⌫" class="Char-Deleter"></Button>
-                <Button text="cos" class="Function"></Button>
-                <Button text="8" class="Number"></Button>
-                <Button text="5" class="Number"></Button>
-                <Button text="2" class="Number"></Button>
-                <Button text="0" class="Number"></Button>
+                <Button text="⌫" class="Char-Deleter" tap="{{ RemoveLastElementFromMathExpression }}"></Button>
+                <Button text="cos" class="Function" tap="{{ AddElementToMathExpression }}" mathElement="cos"></Button>
+                <Button text="8" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="8"></Button>
+                <Button text="5" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="5"></Button>
+                <Button text="2" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="2"></Button>
+                <Button text="0" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="0"></Button>
             </FlexboxLayout>
             <FlexboxLayout>
-                <Button text="(" class="Bracket"></Button>
-                <Button text="!" class="Function"></Button>
-                <Button text="9" class="Number"></Button>
-                <Button text="6" class="Number"></Button>
-                <Button text="3" class="Number"></Button>
-                <Button text="," class="Number"></Button>
+                <Button text="(" class="Bracket" tap="{{ AddElementToMathExpression }}" mathElement="("></Button>
+                <Button text="!" class="Function" tap="{{ AddElementToMathExpression }}" mathElement="!"></Button>
+                <Button text="9" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="9"></Button>
+                <Button text="6" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="6"></Button>
+                <Button text="3" class="Number" tap="{{ AddElementToMathExpression }}" mathElement="3"></Button>
+                <Button text="," class="Number" tap="{{ AddElementToMathExpression }}" mathElement=","></Button>
             </FlexboxLayout>
             <FlexboxLayout>
-                <Button text=")" class="Bracket"></Button>
-                <Button text="÷" class="Ariphmetic"></Button>
-                <Button text="×" class="Ariphmetic"></Button>
-                <Button text="−" class="Ariphmetic"></Button>
-                <Button text="+" class="Ariphmetic"></Button>
-                <Button text="=" class="Equal"></Button>
+                <Button text=")" class="Bracket" tap="{{ AddElementToMathExpression }}" mathElement=")"></Button>
+                <Button text="÷" class="Ariphmetic" tap="{{ AddElementToMathExpression }}" mathElement="/"></Button>
+                <Button text="×" class="Ariphmetic" tap="{{ AddElementToMathExpression }}" mathElement="*"></Button>
+                <Button text="−" class="Ariphmetic" tap="{{ AddElementToMathExpression }}" mathElement="-"></Button>
+                <Button text="+" class="Ariphmetic" tap="{{ AddElementToMathExpression }}" mathElement="+"></Button>
+                <Button text="=" class="Equal" tap="{{ EvaluateMathExpression }}"></Button>
             </FlexboxLayout>
         </FlexboxLayout>
     </StackLayout>
