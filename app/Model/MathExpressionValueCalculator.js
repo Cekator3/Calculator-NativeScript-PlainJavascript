@@ -10,28 +10,11 @@ from "./MathExpressionConverterToPostfixForm";
 
 import
 {
-    isArithmeticOperation,
+    isNumber,
     isPostfixOperation,
     isPrefixOperation,
-} from "./MathOperationTypeIdentifier";
-
-function isDigit(chr)
-{
-    return (chr >= '0') && (chr <= '9');
-}
-
-function isDecimalDelimiter(chr)
-{
-    return (chr === ',') || (chr === '.');
-}
-
-function isNumber(token)
-{
-    for (let chr of token)
-        if (!isDigit(chr) && (!isDecimalDelimiter(chr)))
-            return false;
-    return true;
-}
+    isArithmeticOperation
+} from "~/Model/MathElementType";
 
 function isBinaryOperation(token)
 {

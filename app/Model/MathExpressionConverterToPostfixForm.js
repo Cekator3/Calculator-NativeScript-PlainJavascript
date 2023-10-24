@@ -3,86 +3,32 @@
 ///////////////////////////////////////////////////////////////////
 
 import { splitMathExpressionToTokens } from "./MathExpressionTokenizer";
+import { isDigitDelimiter } from "~/Model/CharType";
 import
 {
-    isArithmeticOperation,
-    isPostfixOperation,
+    MathElementType,
+    getTypeOfMathElement,
+    isMathOperation,
     isPrefixOperation
-} from "./MathOperationTypeIdentifier";
-
-
-//Emulating enum type
-class TokenType
-{
-    static NUMBER = 0;
-    static ARITHMETIC_OPERATION = 1
-    static POSTFIX_OPERATION = 2;
-    static PREFIX_OPERATION = 3;
-    static OPENING_BRACKET = 4;
-    static CLOSING_BRACKET = 5;
-    static UNKNOWN = 6;
 }
-
-function isDigit(chr)
-{
-    return (chr >= '0') && (chr <= '9');
-}
-
-function isDecimalDelimiter(chr)
-{
-    return (chr === '.') || (chr === ',');
-}
-
-function isNumber(token)
-{
-    if (isDecimalDelimiter(token))
-        return false;
-    for (let chr of token)
-        if ((!isDigit(chr)) && (!isDecimalDelimiter(chr)))
-            return false;
-    return true;
-}
+from "~/Model/MathElementType";
 
 function countDecimalDelimiters(token)
 {
     let result = 0;
     for (let chr of token)
-        if (isDecimalDelimiter(chr))
+        if (isDigitDelimiter(chr))
             result++;
     return result;
-}
-
-function isMathOperation(token)
-{
-    return isArithmeticOperation(token) ||
-           isPostfixOperation(token) ||
-           isPrefixOperation(token);
-}
-
-function getTokenType(token)
-{
-    if (isNumber(token))
-        return TokenType.NUMBER;
-    if (isArithmeticOperation(token))
-        return TokenType.ARITHMETIC_OPERATION;
-    if (isPostfixOperation(token))
-        return TokenType.POSTFIX_OPERATION;
-    if (isPrefixOperation(token))
-        return TokenType.PREFIX_OPERATION;
-    if (token === '(')
-        return TokenType.OPENING_BRACKET;
-    if (token === ')')
-        return TokenType.CLOSING_BRACKET;
-    return TokenType.UNKNOWN;
 }
 
 function isUnaryOperation(prevToken)
 {
     if (prevToken === undefined)
         return true;
-    let prevTokenType = getTokenType(prevToken);
-    return (prevTokenType === TokenType.ARITHMETIC_OPERATION) ||
-           (prevTokenType === TokenType.OPENING_BRACKET);
+    let prevTokenType = getTypeOfMathElement(prevToken);
+    return (prevTokenType === MathElementType.ARITHMETIC_OPERATION) ||
+           (prevTokenType === MathElementType.OPENING_BRACKET);
 }
 
 function getUnaryVersionOfOperation(operation)
@@ -174,10 +120,10 @@ function isPostfixOperationCanGoAfterThisToken(token)
 {
     if (token === undefined)
         return false;
-    let tokenType = getTokenType(token);
-    return (tokenType !== TokenType.OPENING_BRACKET) &&
-           (tokenType !== TokenType.ARITHMETIC_OPERATION) &&
-           (tokenType !== TokenType.PREFIX_OPERATION);
+    let tokenType = getTypeOfMathElement(token);
+    return (tokenType !== MathElementType.OPENING_BRACKET) &&
+           (tokenType !== MathElementType.ARITHMETIC_OPERATION) &&
+           (tokenType !== MathElementType.PREFIX_OPERATION);
 }
 
 export class OpeningBracketExpectedButNotFoundException extends Error
@@ -289,41 +235,41 @@ export function generatePostfixFormFromMathExpression(mathExpression)
     let charPosition = 0;
     for (let i = 0; i < tokens.length; i++)
     {
-        let tokenType = getTokenType(tokens[i]);
-        if(isOpeningBracketRequired && (tokenType !== TokenType.OPENING_BRACKET))
+        let tokenType = getTypeOfMathElement(tokens[i]);
+        if(isOpeningBracketRequired && (tokenType !== MathElementType.OPENING_BRACKET))
             throw new OpeningBracketExpectedButNotFoundException(tokens[i], charPosition);
         isOpeningBracketRequired = false;
         switch (tokenType)
         {
-            case TokenType.NUMBER:
+            case MathElementType.NUMBER:
                 if (countDecimalDelimiters(tokens[i]) > 1)
                     throw new TooManyDecimalDelimitersInNumberFoundException(tokens[i], charPosition);
-                if (isDecimalDelimiter(tokens[i][0]))
+                if (isDigitDelimiter(tokens[i][0]))
                     throw new UnexpectedDecimalDelimiterPositionException(tokens[i], charPosition);
-                if (isDecimalDelimiter(tokens[i].at(-1)))
+                if (isDigitDelimiter(tokens[i].at(-1)))
                     throw new UnexpectedDecimalDelimiterPositionException(tokens[i], charPosition + tokens[i].length - 1);
                 result.push(tokens[i]);
                 break;
-            case TokenType.POSTFIX_OPERATION:
+            case MathElementType.POSTFIX_OPERATION:
                 if (!isPostfixOperationCanGoAfterThisToken(tokens[i - 1]))
                     throw new UnexpectedMathOperationFoundException(tokens[i], charPosition);
                 result.push(tokens[i]);
                 break;
-            case TokenType.PREFIX_OPERATION:
+            case MathElementType.PREFIX_OPERATION:
                 isOpeningBracketRequired = (tokens[i] === 'cos') ||
                                            (tokens[i] === 'sin');
                 stack.push(tokens[i]);
                 break;
-            case TokenType.OPENING_BRACKET:
+            case MathElementType.OPENING_BRACKET:
                 stack.push(tokens[i]);
                 break;
-            case TokenType.CLOSING_BRACKET:
+            case MathElementType.CLOSING_BRACKET:
                 temp = extractItemsUntilOpeningBracketFromStack('(', stack);
                 if (temp === false)
                     throw new UnpairedBracketsFoundException(tokens[i], charPosition);
                 result = result.concat(temp);
                 break;
-            case TokenType.ARITHMETIC_OPERATION:
+            case MathElementType.ARITHMETIC_OPERATION:
                 if (isUnaryOperation(tokens[i - 1]))
                 {
                     let token = getUnaryVersionOfOperation(tokens[i]);
@@ -355,7 +301,7 @@ export function generatePostfixFormFromMathExpression(mathExpression)
                 result = result.concat(temp);
                 stack.push(tokens[i]);
                 break;
-            case TokenType.UNKNOWN:
+            case MathElementType.UNKNOWN:
                 throw new UnknownMathOperationException(tokens[i], charPosition);
         }
         charPosition += tokens[i].length;

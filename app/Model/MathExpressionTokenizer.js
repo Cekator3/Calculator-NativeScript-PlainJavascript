@@ -2,53 +2,7 @@
 //Module for splitting a mathematical expression into array of strings
 //////////////////////////////////////////////////////////////////////
 
-//Emulating enum type
-class CharType
-{
-    static LATIN = 0;
-    static DIGIT = 1;
-    static DIGIT_DELIMITER = 2
-    static SPACE = 3;
-    static OTHER = 4;
-}
-
-function isLatin(chr)
-{
-    return ((chr >= 'a') && (chr <= 'z')) ||
-           ((chr >= 'A') && (chr <= 'Z'));
-}
-
-function isDigit(chr)
-{
-    return (chr >= '0') && (chr <= '9');
-}
-
-function isSpace(chr)
-{
-    return (chr === ' ') ||
-           (chr === String.prototype.charCodeAt(9)) ||    //TAB
-           (chr === String.prototype.charCodeAt(10)) ||   //Line Feed
-           (chr === String.prototype.charCodeAt(13)) ||   //Vertical TAB
-           (chr === String.prototype.charCodeAt(15));     //Carriage Return
-}
-
-function isDigitDelimiter(chr)
-{
-    return (chr === '.') || (chr === ',');
-}
-
-function getCharType(chr)
-{
-    if(isLatin(chr))
-        return CharType.LATIN;
-    if(isDigit(chr))
-        return CharType.DIGIT;
-    if(isDigitDelimiter(chr))
-        return CharType.DIGIT_DELIMITER;
-    if(isSpace(chr))
-        return CharType.SPACE;
-    return CharType.OTHER;
-}
+import {CharType, getCharType} from "~/Model/CharType";
 
 /**
  * Splits math expression to words, numbers and other ASCII-symbols.
