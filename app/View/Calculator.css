@@ -62,7 +62,13 @@ ActionBar
 .calculator-buttons .Function
 {
     color: rgb(236, 154, 0);
-    background-color: rgb(243, 243, 243);
+    background-color: hsl(0, 0%, 95%);
+}
+
+.calculator-buttons .Number:active,
+.calculator-buttons .Function:active
+{
+    background-color: hsl(0, 0%, 90%);
 }
 
 .calculator-buttons .Number
@@ -82,6 +88,12 @@ ActionBar
     color: hsl(50, 0%, 38%);
 }
 
+.calculator-buttons .Char-Deleter:active,
+.calculator-buttons .Text-Deleter:active
+{
+    background-color: hsl(50, 0%, 57%);
+}
+
 .calculator-buttons .Char-Deleter
 {
     font-size: 20;
@@ -97,6 +109,12 @@ ActionBar
 {
     background-color: hsl(30, 100%, 68%);
     color: hsl(30, 100%, 38%);
+}
+
+.calculator-buttons .Ariphmetic:active,
+.calculator-buttons .Bracket:active
+{
+    background-color: hsl(30, 100%, 55%);
 }
 
 .calculator-buttons .Ariphmetic
@@ -116,4 +134,8 @@ ActionBar
     color: hsl(30, 100%, 25%);
     font-size: 20;
     font-weight: bold;
+}
+.calculator-buttons .Equal:active
+{
+    background-color: hsl(30, 100%, 40%);
 }

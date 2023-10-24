@@ -9,7 +9,8 @@ import
 }
 from "~/Model/MathExpressionGenerator";
 import {
-    AttemptToCalculateFactorialOfFloatNumberException, AttemptToCalculateFactorialOfNegativeNumberException,
+    AttemptToCalculateFactorialOfFloatNumberException,
+    AttemptToCalculateFactorialOfNegativeNumberException,
     calculateValueFromMathExpression,
     NotEnoughBinaryMathOperatorsForCalculationException
 } from "~/Model/MathExpressionValueCalculator";
@@ -20,7 +21,8 @@ import
 import {
     DeveloperForgotToWriteImplementationOfMathOperationException,
     OpeningBracketExpectedButNotFoundException,
-    TooManyDecimalDelimitersInNumberFoundException, UnexpectedDecimalDelimiterPositionException,
+    TooManyDecimalDelimitersInNumberFoundException,
+    UnexpectedDecimalDelimiterPositionException,
     UnexpectedMathOperationFoundException,
     UnknownMathOperationException,
     UnpairedBracketsFoundException
