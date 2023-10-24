@@ -28,6 +28,8 @@ function isUnaryOperation(token)
 
 function factorial(n)
 {
+    if (isNaN(n))
+        return NaN;
     //Factorial of float is undefined (in this application)
     if (!Number.isSafeInteger(n))
         throw new AttemptToCalculateFactorialOfFloatNumberException();
