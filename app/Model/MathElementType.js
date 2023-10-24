@@ -24,6 +24,8 @@ export function isNumber(mathElement)
 {
     if (isDigitDelimiter(mathElement))
         return false;
+    if (mathElement === 'Infinity')
+        return true;
     for (let chr of mathElement)
         if ((!isDigit(chr)) && (!isDigitDelimiter(chr)))
             return false;

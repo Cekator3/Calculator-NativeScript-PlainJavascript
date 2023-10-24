@@ -43,7 +43,10 @@ function EvaluateMathExpression()
         clearMathExpression();
         addComponentToMathExpression(answer.toString());
     }
-    catch (e) {}
+    catch (e)
+    {
+        console.log(e.message);
+    }
 }
 
 export function getCalculatorViewModel()
