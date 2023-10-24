@@ -60,6 +60,8 @@ function getComponentType(component)
         return undefined;
     if (component === 'Infinity')
         return CharType.DIGIT;
+    if (component === 'NaN')
+        return CharType.DIGIT;
     return getCharType(component[0]);
 }
 
