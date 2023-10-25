@@ -3,10 +3,14 @@
 
     <StackLayout class='calculator'>
         <FlexboxLayout class="user-last-input">
-            <Label text="{{ previousMathExpression }}" />
+            <ScrollView>
+                <Label text="{{ previousMathExpression }}" />
+            </ScrollView>
         </FlexboxLayout>
         <FlexboxLayout class="user-current-input">
-            <Label text="{{ currentMathExpression }}" />
+            <ScrollView>
+                <Label text="{{ currentMathExpression }}" />
+            </ScrollView>
         </FlexboxLayout>
         <FlexboxLayout class='calculator-buttons'>
             <FlexboxLayout>

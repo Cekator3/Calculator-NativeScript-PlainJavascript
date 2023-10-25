@@ -17,25 +17,38 @@ ActionBar
 
 .user-last-input
 {
-    height: 25%;
+    height: 20%;
     margin-bottom: 10;
 
     font-size: 25;
-    flex-flow: row-reverse wrap;
+    flex-flow: column nowrap;
+    justify-content: flex-end;
     align-items: flex-end;
     color: hsl(50, 0%, 50%);
 }
 
+.user-last-input > * > *
+{
+    text-wrap: true;
+    text-align: justify;
+}
+
 .user-current-input
 {
-    height: 20%;
+    height: 25%;
 
     font-size: 40;
     color: black;
-    flex-flow: row nowrap;
-    justify-content: flex-end;
-    align-items: flex-start;
+    flex-flow: row-reverse nowrap;
+    align-items: flex-end;
 }
+
+.user-current-input > * > *
+{
+    text-wrap: true;
+    text-align: justify;
+}
+
 
 
 .calculator-buttons
