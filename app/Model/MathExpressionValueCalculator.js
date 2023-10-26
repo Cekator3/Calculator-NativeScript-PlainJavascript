@@ -98,6 +98,17 @@ export class NotEnoughBinaryMathOperatorsForCalculationException extends Error
     }
 }
 
+export class NotEnoughNumbersToExecuteMathOperationException extends Error
+{
+    mathOperation;
+    constructor(mathOperation)
+    {
+        if (mathOperation === '~')
+            mathOperation = '-';
+        super('There are not enough numbers to execute math operation "' + mathOperation + '"');
+        this.mathOperation = mathOperation;
+    }
+}
 
 /**
  * Calculates value of math expression
@@ -130,14 +141,10 @@ export function calculateValueFromMathExpression(expression)
         }
         if (isBinaryOperation(tokens[i]))
         {
-            if (stack.length === 0)
-                b = 0;
-            else
-                b = stack.pop();
-            if (stack.length === 0)
-                a = 0;
-            else
-                a = stack.pop();
+            if (stack.length < 2)
+                throw new NotEnoughNumbersToExecuteMathOperationException(tokens[i]);
+            b = stack.pop();
+            a = stack.pop();
             result = calculateBinaryExpression(a, b, tokens[i]);
             stack.push(result);
             continue;
@@ -145,9 +152,8 @@ export function calculateValueFromMathExpression(expression)
         if (isUnaryOperation(tokens[i]))
         {
             if (stack.length === 0)
-                a = 0;
-            else
-                a = stack.pop();
+                throw new NotEnoughNumbersToExecuteMathOperationException(tokens[i]);
+            a = stack.pop();
             result = calculateUnaryExpression(a, tokens[i]);
             stack.push(result);
         }

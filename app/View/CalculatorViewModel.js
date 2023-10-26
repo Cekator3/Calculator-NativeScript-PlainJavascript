@@ -12,7 +12,7 @@ import {
     AttemptToCalculateFactorialOfFloatNumberException,
     AttemptToCalculateFactorialOfNegativeNumberException,
     calculateValueFromMathExpression,
-    NotEnoughBinaryMathOperatorsForCalculationException
+    NotEnoughBinaryMathOperatorsForCalculationException, NotEnoughNumbersToExecuteMathOperationException
 } from "~/Model/MathExpressionValueCalculator";
 import
 {
@@ -99,6 +99,8 @@ function EvaluateMathExpression()
             DisplayErrorMessage('Для вычисления этого выражения необходимо посчитать факториал дробного числа, но эта программа этого делать пока что не умеет.');
         else if (e instanceof AttemptToCalculateFactorialOfNegativeNumberException)
             DisplayErrorMessage('Для вычисления этого выражения необходимо посчитать факториал отрицательного числа, однако факториал отрицательного числа не определён');
+        else if (e instanceof NotEnoughNumbersToExecuteMathOperationException)
+            DisplayErrorMessage('Математическому оператору "' + e.mathOperation + '" не хватает чисел для применения.');
         return;
     }
     viewModel.set(PREVIOUS_MATH_EXPRESSION_PROPERTY_NAME, getMathExpression());
