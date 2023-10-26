@@ -59,6 +59,11 @@ function extractItemsUntilOpeningBracketFromStack(bracket, stack)
     return false;
 }
 
+function isPrefixOperationAtTheEndOfStack(stack)
+{
+    return (stack.length > 0) && isPrefixOperation(stack.at(-1));
+}
+
 function extractAllOperationsFromStack(stack)
 {
     let result = [];
@@ -76,11 +81,11 @@ function getOperationPriority(operation)
 {
     switch (operation)
     {
-        case '~':
-            return 10;
         case 'sin':
         case 'cos':
-            return 9;
+            return 11;
+        case '~':
+            return 10;
         case '!':
         case '^':
             return 8;
@@ -267,6 +272,8 @@ export function generatePostfixFormFromMathExpression(mathExpression)
                 temp = extractItemsUntilOpeningBracketFromStack('(', stack);
                 if (temp === false)
                     throw new UnpairedBracketsFoundException(tokens[i], charPosition);
+                if (isPrefixOperationAtTheEndOfStack(stack))
+                    temp.push(stack.pop());
                 result = result.concat(temp);
                 break;
             case MathElementType.ARITHMETIC_OPERATION:
