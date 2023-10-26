@@ -125,7 +125,7 @@ export function calculateValueFromMathExpression(expression)
     {
         if (isNumber(tokens[i]))
         {
-            stack.push(tokens[i].replace(',', '.'));
+            stack.push(tokens[i]);
             continue;
         }
         if (isBinaryOperation(tokens[i]))

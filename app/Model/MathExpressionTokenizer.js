@@ -34,10 +34,10 @@ export function splitMathExpressionToTokens(mathExpression)
             case CharType.DIGIT_DELIMITER:
                 if (prevCharType === CharType.DIGIT)
                 {
-                    result[result.length - 1] += currChar;
+                    result[result.length - 1] += '.';
                     break;
                 }
-                result.push(currChar);
+                result.push('.');
                 break;
             case CharType.LATIN:
                 if (prevCharType === CharType.LATIN)
